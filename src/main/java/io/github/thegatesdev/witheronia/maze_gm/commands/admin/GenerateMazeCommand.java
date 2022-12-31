@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.commands;
+package io.github.thegatesdev.witheronia.maze_gm.commands.admin;
 
 import dev.jorel.commandapi.ArgumentTree;
 import dev.jorel.commandapi.CommandAPI;
