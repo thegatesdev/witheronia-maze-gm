@@ -28,7 +28,7 @@ public class MazeGenerator {
 
         final Material[][][] materialGrid = new Material[size.x][size.z][size.y];
         final Context context = new Context(maze.getGenerated(), materialGrid, size, corridorWidth, wallThickness);
-        generators.forEach(generator -> {
+        for (FeatureGenerator generator : generators) {
             generator.onGenerationStart(random, context);
             for (int x = 0, blocksLength = materialGrid.length; x < blocksLength; x++) {
                 final Material[][] block = materialGrid[x];
@@ -41,7 +41,7 @@ public class MazeGenerator {
                 }
             }
             generator.onGenerationEnd(random, context);
-        });
+        }
         return materialGrid;
     }
 

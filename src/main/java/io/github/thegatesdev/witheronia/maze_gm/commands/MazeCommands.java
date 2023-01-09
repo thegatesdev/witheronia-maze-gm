@@ -1,18 +1,21 @@
 package io.github.thegatesdev.witheronia.maze_gm.commands;
 
+import dev.jorel.commandapi.ArgumentTree;
 import dev.jorel.commandapi.CommandTree;
+import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.executors.CommandExecutor;
+import io.github.thegatesdev.skiller.ItemGroup;
+import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.witheronia.maze_gm.commands.admin.GenerateMazeCommand;
+import io.github.thegatesdev.witheronia.maze_gm.commands.admin.GiveItemCommand;
 import io.github.thegatesdev.witheronia.maze_gm.main.MazeGamemode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MazeCommands {
-
     private final MazeGamemode mazeGamemode;
-    private final List<CommandTree> mazeCommands = new ArrayList<>();
+    private final CommandTree baseCommand = new CommandTree("witheronia").withAliases("wt");
 
-    private boolean created = false, registered = false;
+    private boolean created = false;
+    private boolean registered = false;
 
     public MazeCommands(MazeGamemode mazeGamemode) {
         this.mazeGamemode = mazeGamemode;
@@ -21,25 +24,32 @@ public class MazeCommands {
     public void create() {
         if (created) throw new RuntimeException("Already created");
 
-        add(new CommandTree("basic_maze")
+        add(new LiteralArgument("basic_maze")
                 .then(GenerateMazeCommand.generateArg(mazeGamemode.getBasicGenerator()))
-                .then(GenerateMazeCommand.placeBlocksArg(mazeGamemode, mazeGamemode.getBasicGenerator())
-                ));
+                .then(GenerateMazeCommand.placeBlocksArg(mazeGamemode, mazeGamemode.getBasicGenerator()))
+        );
+
+        {
+            final LiteralArgument give = new LiteralArgument("give");
+            final ItemManager itemManager = mazeGamemode.getItemManager();
+            for (final ItemGroup group : itemManager.groups()) {
+                give.then(GiveItemCommand.giveFromGroupArg(group));
+            }
+            add(give);
+        }
+
+        add(new LiteralArgument("reload").executes((CommandExecutor) (sender, args) -> mazeGamemode.reload()));
 
         created = true;
     }
 
-    public void register() {
-        if (registered) throw new RuntimeException("Already registered");
-
-        for (final CommandTree command : mazeCommands) {
-            command.register();
-        }
-
-        registered = true;
+    public void add(ArgumentTree argumentTree) {
+        baseCommand.then(argumentTree);
     }
 
-    private void add(CommandTree commandTree) {
-        mazeCommands.add(commandTree);
+    public void register() {
+        if (registered) throw new RuntimeException("Already registered");
+        baseCommand.register();
+        registered = true;
     }
 }
