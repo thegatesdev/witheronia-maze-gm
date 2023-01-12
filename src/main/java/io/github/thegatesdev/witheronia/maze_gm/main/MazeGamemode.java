@@ -2,23 +2,17 @@ package io.github.thegatesdev.witheronia.maze_gm.main;
 
 import io.github.thegatesdev.eventador.event.EventManager;
 import io.github.thegatesdev.eventador.event.ListenerManager;
-import io.github.thegatesdev.eventador.event.MappedReactors;
-import io.github.thegatesdev.eventador.factory.ReactorFactory;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.exception.ElementException;
-import io.github.thegatesdev.mapletree.data.ExpandableType;
-import io.github.thegatesdev.mapletree.data.Readable;
-import io.github.thegatesdev.mapletree.data.ReadableData;
-import io.github.thegatesdev.skiller.*;
+import io.github.thegatesdev.skiller.ItemManager;
+import io.github.thegatesdev.skiller.Skiller;
 import io.github.thegatesdev.witheronia.maze_gm.commands.MazeCommands;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
-import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -65,22 +59,7 @@ public class MazeGamemode extends JavaPlugin {
 
     // ITEM
 
-    private final ItemGroup mazeItems = itemManager.addGroup(new ItemGroup("maze_items", key("maze_item"))); // Maze items
-    private final MappedReactors<ItemStack, String> mazeItemReactors = new MappedReactors<>(eventManager, mazeEvents.itemStackEvents, mazeItems::itemId); // Maze item events
-
-    //<editor-fold desc="Maze item type">
-    public final ExpandableType<CustomItem> mazeItemType = new ExpandableType<>(CustomItem.class, new ReadableData()
-            .add("material", Readable.enumeration(Material.class))
-            .add("id", Readable.primitive(String.class)), data -> {
-        final Material material = data.get("material", Material.class);
-        return new CustomItem(data.getString("id"), material, new MetaBuilder(material));
-    }).expand("reactors", mazeEvents.listType(), (reactors, customItem) -> {
-                for (final ReactorFactory<?>.ReadReactor reactor : reactors) {
-                    mazeItemReactors.addReactor(customItem.id(), reactor);
-                }
-            }).expand("name", MazeDataTypes.COLORED_STRING, (component, customItem) -> customItem.metaBuilder().name(component))
-            .expand("lore", MazeDataTypes.COLORED_STRING.listType(), (components, customItem) -> customItem.metaBuilder().addLore(components));
-    //</editor-fold>
+    private final MazeItems mazeItems = new MazeItems(this);
 
     // GENERATION
 
@@ -106,8 +85,6 @@ public class MazeGamemode extends JavaPlugin {
         // UNLOAD
         listenerManager.cancelAllEvents(true);
         listenerManager.handleEvents(false);
-        mazeItems.clear();
-        mazeItemReactors.clear();
 
         // LOAD
         reloadConfig();
@@ -123,12 +100,17 @@ public class MazeGamemode extends JavaPlugin {
             }, () -> logger.info("Not loading any files, no data files supplied."));
         }
 
-        listenerManager.remap(mazeItemReactors, mazeItemReactors.listenedEvents());
-
         for (final Player player : getServer().getOnlinePlayers()) {
             final PlayerInventory inventory = player.getInventory();
             inventory.setContents(itemManager.reloadItems(inventory.getContents()));
         }
+
+        // REMAP
+
+        mazeItems.remapEvents(listenerManager);
+
+        // FINISH
+
         listenerManager.handleEvents(true);
         listenerManager.cancelAllEvents(false);
         logger.info("Reloaded.");
@@ -151,8 +133,7 @@ public class MazeGamemode extends JavaPlugin {
         fileData.asMap().ifList("maze_items", list -> {
             for (final DataElement element : list) {
                 try {
-                    final CustomItem read = mazeItemType.read(element);
-                    mazeItems.register(read);
+                    mazeItems.read(element);
                 } catch (ElementException e) {
                     logger.warning("Failed to read an item: " + e.getMessage());
                 }
@@ -181,6 +162,14 @@ public class MazeGamemode extends JavaPlugin {
 
     public ItemManager getItemManager() {
         return itemManager;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
+    public MazeEvents getMazeEvents() {
+        return mazeEvents;
     }
 
     // -- UTIL
