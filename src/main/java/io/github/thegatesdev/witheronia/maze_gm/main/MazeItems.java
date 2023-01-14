@@ -15,8 +15,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class MazeItems extends ItemGroup {
-    private final MappedReactors<ItemStack, String> mazeItemReactors;
-    private final ExpandableType<CustomItem> mazeItemType = new ExpandableType<>(CustomItem.class, new ReadableData()
+    private final MappedReactors<ItemStack, String> reactors;
+    private final ExpandableType<CustomItem> type = new ExpandableType<>(CustomItem.class, new ReadableData()
             .add("material", Readable.enumeration(Material.class))
             .add("id", Readable.primitive(String.class)), data -> {
         final Material material = data.get("material", Material.class);
@@ -25,21 +25,21 @@ public class MazeItems extends ItemGroup {
 
     public MazeItems(MazeGamemode mazeGamemode) {
         super("maze_items", mazeGamemode.key("maze_item"), true);
-        mazeItemReactors = new MappedReactors<>(mazeGamemode.getEventManager(), mazeGamemode.getMazeEvents().itemStackEvents, this::itemId);
-        mazeItemType
+        reactors = new MappedReactors<>(mazeGamemode.getEventManager(), mazeGamemode.getMazeEvents().itemStackEvents, this::itemId);
+        type
                 .expand("reactors", mazeGamemode.getMazeEvents().listType(), (reactors, customItem) -> {
                     for (final ReactorFactory<?>.ReadReactor reactor : reactors)
-                        mazeItemReactors.addReactor(customItem.id(), reactor.eventClass(), reactor);
+                        this.reactors.addReactor(customItem.id(), reactor.eventClass(), reactor);
                 })
                 .expand("name", MazeDataTypes.COLORED_STRING, (component, customItem) -> customItem.metaBuilder().name(component))
                 .expand("lore", MazeDataTypes.COLORED_STRING.listType(), (components, customItem) -> customItem.metaBuilder().addLore(components));
     }
 
     public void read(final DataElement element) {
-        register(mazeItemType.read(element));
+        register(type.read(element));
     }
 
     public void remapEvents(ListenerManager listenerManager) {
-        listenerManager.remap(mazeItemReactors, mazeItemReactors.listenedEvents());
+        listenerManager.remap(reactors, reactors.listenedEvents());
     }
 }

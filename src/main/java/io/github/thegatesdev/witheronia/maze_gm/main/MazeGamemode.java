@@ -59,7 +59,7 @@ public class MazeGamemode extends JavaPlugin {
 
     // ITEM
 
-    private final MazeItems mazeItems = new MazeItems(this);
+    private final MazeItems mazeItems = itemManager.addGroup(new MazeItems(this));
 
     // GENERATION
 
