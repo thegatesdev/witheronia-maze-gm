@@ -43,6 +43,7 @@ public class MazeCommands {
             final LiteralArgument options = new LiteralArgument("options");
             options.then(OptionsCommand.eventOptionsArg(mazeGamemode.getMazeEvents()));
             options.then(OptionsCommand.dataTypeOptionsArg());
+            options.then(OptionsCommand.factoryOptionsArg());
             add(options);
         }
 
