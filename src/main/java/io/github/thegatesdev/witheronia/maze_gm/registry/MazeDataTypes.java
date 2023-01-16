@@ -7,5 +7,5 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 
 public class MazeDataTypes {
-    public static final DataType<TextComponent> COLORED_STRING = Readable.primitive(TextComponent.class, primitive -> LegacyComponentSerializer.legacyAmpersand().deserialize(primitive.requireValue(String.class)));
+    public static final DataType<TextComponent> COLORED_STRING = Readable.primitive("colored_text", TextComponent.class, primitive -> LegacyComponentSerializer.legacyAmpersand().deserialize(primitive.requireValue(String.class)));
 }
