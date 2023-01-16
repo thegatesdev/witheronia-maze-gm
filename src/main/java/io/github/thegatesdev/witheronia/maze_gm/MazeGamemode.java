@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.main;
+package io.github.thegatesdev.witheronia.maze_gm;
 
 import io.github.thegatesdev.eventador.event.EventManager;
 import io.github.thegatesdev.eventador.event.ListenerManager;

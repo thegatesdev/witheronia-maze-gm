@@ -2,7 +2,7 @@ name: MazeGM
 version: '${project.version}'
 author: TheGatesDev
 api-version: 1.19
-main: io.github.thegatesdev.witheronia.maze_gm.main.MazeGamemode
+main: io.github.thegatesdev.witheronia.maze_gm.MazeGamemode
 depend:
   - Skiller
   - Eventador

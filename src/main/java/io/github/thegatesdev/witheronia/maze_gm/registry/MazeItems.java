@@ -10,7 +10,7 @@ import io.github.thegatesdev.mapletree.data.ReadableData;
 import io.github.thegatesdev.skiller.CustomItem;
 import io.github.thegatesdev.skiller.ItemGroup;
 import io.github.thegatesdev.skiller.MetaBuilder;
-import io.github.thegatesdev.witheronia.maze_gm.main.MazeGamemode;
+import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

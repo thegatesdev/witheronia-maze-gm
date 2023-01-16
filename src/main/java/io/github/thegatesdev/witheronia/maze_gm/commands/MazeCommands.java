@@ -6,10 +6,10 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.executors.CommandExecutor;
 import io.github.thegatesdev.skiller.ItemGroup;
 import io.github.thegatesdev.skiller.ItemManager;
+import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import io.github.thegatesdev.witheronia.maze_gm.commands.admin.GenerateMazeCommand;
 import io.github.thegatesdev.witheronia.maze_gm.commands.admin.GiveItemCommand;
 import io.github.thegatesdev.witheronia.maze_gm.commands.admin.OptionsCommand;
-import io.github.thegatesdev.witheronia.maze_gm.main.MazeGamemode;
 
 public class MazeCommands {
     private final MazeGamemode mazeGamemode;
