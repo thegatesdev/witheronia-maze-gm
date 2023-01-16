@@ -87,6 +87,8 @@ public class MazeGamemode extends JavaPlugin {
         listenerManager.cancelAllEvents(true);
         listenerManager.handleEvents(false);
 
+        mazeItems.clear();
+
         // LOAD
         reloadConfig();
 

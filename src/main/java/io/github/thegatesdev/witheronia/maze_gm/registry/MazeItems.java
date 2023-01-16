@@ -42,4 +42,10 @@ public class MazeItems extends ItemGroup {
     public void remapEvents(ListenerManager listenerManager) {
         listenerManager.remap(reactors, reactors.listenedEvents());
     }
+
+    @Override
+    public void clear() {
+        super.clear();
+        reactors.clear();
+    }
 }
