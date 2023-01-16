@@ -8,6 +8,7 @@ import io.github.thegatesdev.skiller.ItemGroup;
 import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.witheronia.maze_gm.commands.admin.GenerateMazeCommand;
 import io.github.thegatesdev.witheronia.maze_gm.commands.admin.GiveItemCommand;
+import io.github.thegatesdev.witheronia.maze_gm.commands.admin.OptionsCommand;
 import io.github.thegatesdev.witheronia.maze_gm.main.MazeGamemode;
 
 public class MazeCommands {
@@ -36,6 +37,13 @@ public class MazeCommands {
                 give.then(GiveItemCommand.giveFromGroupArg(group));
             }
             add(give);
+        }
+
+        {
+            final LiteralArgument options = new LiteralArgument("options");
+            options.then(OptionsCommand.eventOptionsArg(mazeGamemode.getMazeEvents()));
+            options.then(OptionsCommand.dataTypeOptionsArg());
+            add(options);
         }
 
         add(new LiteralArgument("reload").executes((CommandExecutor) (sender, args) -> mazeGamemode.reload()));
