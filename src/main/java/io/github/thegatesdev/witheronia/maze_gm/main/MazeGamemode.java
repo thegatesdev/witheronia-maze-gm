@@ -10,6 +10,7 @@ import io.github.thegatesdev.skiller.Skiller;
 import io.github.thegatesdev.witheronia.maze_gm.commands.MazeCommands;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
+import io.github.thegatesdev.witheronia.maze_gm.registry.MazeItems;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;

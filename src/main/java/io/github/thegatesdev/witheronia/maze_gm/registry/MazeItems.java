@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.main;
+package io.github.thegatesdev.witheronia.maze_gm.registry;
 
 import io.github.thegatesdev.eventador.event.ListenerManager;
 import io.github.thegatesdev.eventador.event.util.MappedReactors;
@@ -10,13 +10,13 @@ import io.github.thegatesdev.mapletree.data.ReadableData;
 import io.github.thegatesdev.skiller.CustomItem;
 import io.github.thegatesdev.skiller.ItemGroup;
 import io.github.thegatesdev.skiller.MetaBuilder;
-import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
+import io.github.thegatesdev.witheronia.maze_gm.main.MazeGamemode;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class MazeItems extends ItemGroup {
     private final MappedReactors<ItemStack, String> reactors;
-    private final ExpandableType<CustomItem> type = new ExpandableType<>(CustomItem.class, new ReadableData()
+    private final ExpandableType<CustomItem> type = new ExpandableType<>("maze_item", new ReadableData()
             .add("material", Readable.enumeration(Material.class))
             .add("id", Readable.primitive(String.class)), data -> {
         final Material material = data.get("material", Material.class);
