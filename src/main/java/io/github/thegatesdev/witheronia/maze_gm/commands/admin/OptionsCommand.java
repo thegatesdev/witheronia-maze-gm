@@ -79,6 +79,12 @@ public class OptionsCommand {
         );
     }
 
+    public static ArgumentTree readableDataOptionsArg(String name, ReadableData readableData) {
+        return new LiteralArgument(name).executes((sender, args) -> {
+            sender.sendMessage(DisplayUtil.displayList(Component.text("Options for " + name), DisplayUtil.displayReadableData(readableData)));
+        });
+    }
+
     public static Component getDataTypeInfo(String key) {
         return null;
     }
