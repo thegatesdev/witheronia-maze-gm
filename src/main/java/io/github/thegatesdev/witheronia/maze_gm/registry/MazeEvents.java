@@ -7,7 +7,6 @@ import io.github.thegatesdev.eventador.util.twin.Twin;
 import io.github.thegatesdev.mapletree.data.Readable;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickLocation;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickType;
-import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
@@ -30,7 +29,6 @@ public class MazeEvents extends ReactorFactories {
 
     private void loadEventData() {
         itemStackEvents.add(PlayerInteractEvent.class, "used_stack", PlayerInteractEvent::getItem)
-                .add(PrePlayerAttackEntityEvent.class, "used_stack", event -> event.getPlayer().getInventory().getItemInMainHand())
                 .add(PlayerDropItemEvent.class, "dropped_stack", event -> event.getItemDrop().getItemStack())
                 .add(EntityDropItemEvent.class, "dropped_stack", event -> event.getItemDrop().getItemStack())
                 .add(EntityPickupItemEvent.class, "picked_up_stack", event -> event.getItem().getItemStack())
