@@ -2,6 +2,7 @@ package io.github.thegatesdev.witheronia.maze_gm.registry;
 
 import io.github.thegatesdev.eventador.main.Eventador;
 import io.github.thegatesdev.mapletree.data.DataType;
+import io.github.thegatesdev.mapletree.data.DataTypeHolder;
 import io.github.thegatesdev.mapletree.data.Readable;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -11,14 +12,15 @@ import java.util.Map;
 
 
 public class MazeDataTypes {
-    public static final Map<String, Readable<?>> MAPPED_TYPES = new HashMap<>();
+    public static final Map<String, DataType<?>> MAPPED_TYPES = new HashMap<>();
 
-    public static <T extends Readable<?>> T mapType(T readable) {
-        MAPPED_TYPES.putIfAbsent(readable.id(), readable);
+    public static <T extends DataTypeHolder<?>> T mapType(T readable) {
+        MAPPED_TYPES.putIfAbsent(readable.getDataType().id(), readable.getDataType());
         return readable;
     }
 
     static {
+        // Map from Eventador.
         mapType(Eventador.EFFECT_TYPE);
         mapType(Eventador.VECTOR);
     }

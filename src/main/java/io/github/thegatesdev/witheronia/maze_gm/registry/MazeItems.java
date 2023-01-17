@@ -27,12 +27,12 @@ public class MazeItems extends ItemGroup {
         super("maze_items", mazeGamemode.key("maze_item"), true);
         reactors = new MappedReactors<>(mazeGamemode.getEventManager(), mazeGamemode.getMazeEvents().itemStackEvents, this::itemId);
         type
-                .expand("reactors", mazeGamemode.getMazeEvents().listType(), (reactors, customItem) -> {
+                .expand("reactors", mazeGamemode.getMazeEvents().list(), (reactors, customItem) -> {
                     for (final ReactorFactory<?>.ReadReactor reactor : reactors)
                         this.reactors.addReactor(customItem.id(), reactor.eventClass(), reactor);
                 })
                 .expand("name", MazeDataTypes.COLORED_STRING, (component, customItem) -> customItem.metaBuilder().name(component))
-                .expand("lore", MazeDataTypes.COLORED_STRING.listType(), (components, customItem) -> customItem.metaBuilder().addLore(components));
+                .expand("lore", MazeDataTypes.COLORED_STRING.list(), (components, customItem) -> customItem.metaBuilder().addLore(components));
     }
 
     public void read(final DataElement element) {

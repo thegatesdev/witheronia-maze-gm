@@ -9,6 +9,7 @@ import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.skiller.Skiller;
 import io.github.thegatesdev.witheronia.maze_gm.commands.MazeCommands;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
+import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeItems;
 import org.bukkit.Material;
@@ -72,6 +73,8 @@ public class MazeGamemode extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        MazeDataTypes.mapType(mazeEvents);
+
         commands.create();
     }
 
