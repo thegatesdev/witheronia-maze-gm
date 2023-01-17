@@ -43,6 +43,10 @@ public class MazeItems extends ItemGroup {
         listenerManager.remap(reactors, reactors.listenedEvents());
     }
 
+    public ExpandableType<CustomItem> getType() {
+        return type;
+    }
+
     @Override
     public void clear() {
         super.clear();

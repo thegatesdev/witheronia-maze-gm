@@ -44,6 +44,7 @@ public class MazeCommands {
             options.then(OptionsCommand.eventOptionsArg(mazeGamemode.getMazeEvents()));
             options.then(OptionsCommand.dataTypeOptionsArg());
             options.then(OptionsCommand.factoryOptionsArg());
+            options.then(OptionsCommand.readableDataOptionsArg("maze_item", mazeGamemode.getMazeItems().getType().getReadableData()));
             add(options);
         }
 

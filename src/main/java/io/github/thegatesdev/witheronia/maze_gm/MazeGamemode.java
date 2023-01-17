@@ -167,6 +167,10 @@ public class MazeGamemode extends JavaPlugin {
         return itemManager;
     }
 
+    public MazeItems getMazeItems() {
+        return mazeItems;
+    }
+
     public EventManager getEventManager() {
         return eventManager;
     }
