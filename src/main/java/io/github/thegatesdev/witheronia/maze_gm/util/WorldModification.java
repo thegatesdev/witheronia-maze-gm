@@ -37,11 +37,13 @@ public class WorldModification {
     }
 
 
-    public void update() {
+    public int update() {
         final Set<LevelChunk> modifiedChunks = new HashSet<>();
         final var lightEngine = serverLevel.getChunkSource().getLightEngine();
 
         final BlockPos.MutableBlockPos currentBlockPos = new BlockPos.MutableBlockPos();
+
+        int placedBlocks = 0;
 
         for (final ModifiedBlock modification : modifications) {
             currentBlockPos.set(modification.posX, modification.posY, modification.posZ);
@@ -49,6 +51,7 @@ public class WorldModification {
             modifiedChunks.add(blockChunk);
             // Set block
             blockChunk.setBlockState(currentBlockPos, modification.state, false);
+            placedBlocks++;
             // Update lighting
             lightEngine.checkBlock(currentBlockPos);
         }
@@ -75,6 +78,7 @@ public class WorldModification {
         }
 
         modifications.clear();
+        return placedBlocks;
     }
 
 
