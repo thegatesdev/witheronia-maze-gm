@@ -1,15 +1,9 @@
 package io.github.thegatesdev.witheronia.maze_gm.generation.maze;
 
 import io.github.thegatesdev.maze_generator_lib.Maze;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.chunk.LevelChunk;
+import io.github.thegatesdev.witheronia.maze_gm.util.WorldModification;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -45,45 +39,24 @@ public class MazeGenerator {
         return materialGrid;
     }
 
-    private static void placeMore(World world, Material[][][] grid, Vector3 offset, Iterator<BlockPos> positions, int amount) {
-        while (positions.hasNext() && amount-- > 0) {
-            final BlockPos next = positions.next();
-            final Material material = grid[next.getX() - offset.x][next.getZ() - offset.z][next.getY() - offset.y];
-            setBlock(world, next, material, false);
-        }
-    }
-
-    private static void setBlock(World world, BlockPos pos, Material material, boolean applyPhysics) {
-        final ServerLevel handle = ((CraftWorld) world).getHandle();
-        final LevelChunk nmsChunk = handle.getChunkAt(pos);
-        nmsChunk.setBlockState(pos, ((CraftBlockData) material.createBlockData()).getState(), applyPhysics);
-    }
-
     public void generate(long seed, Vector3 size, int corridorWidth, int wallThickness) {
         generated = generateFeatures(generators, new Random(seed), size, corridorWidth, wallThickness);
         generatedSize = size;
         isGenerated = true;
     }
 
-    public void placeBlocksThreaded(Plugin plugin, Location location, int perTick) throws RuntimeException {
-        if (!isGenerated) throw new RuntimeException("No maze generated");
-        if (perTick <= 0) throw new RuntimeException("Blocks per tick cannot be less than zero");
-        if (runnable.isCancelled()) runnable = null;
-        else if (runnable != null) throw new RuntimeException("Placing already in progress");
-        final World world = location.getWorld();
-        if (!location.isWorldLoaded() || world == null) throw new RuntimeException("Invalid world");
-
-        final Vector3 offset = new Vector3(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        final Iterator<BlockPos> positions = BlockPos.betweenClosed(location.getBlockX(), location.getBlockY(), location.getBlockZ(), generatedSize.x, generatedSize.y, generatedSize.z).iterator();
-
-        runnable = new BukkitRunnable() {
-            @Override
-            public void run() {
-                placeMore(world, generated, offset, positions, perTick);
-                if (!positions.hasNext() && !runnable.isCancelled()) runnable.cancel();
+    public void place(WorldModification worldModification, Location location) {
+        if (!isGenerated) throw new RuntimeException("Not generated");
+        final int xOff = location.getBlockX(), yOff = location.getBlockY(), zOff = location.getBlockZ();
+        for (int x = 0; x < generatedSize.x; x++) {
+            for (int z = 0; z < generatedSize.z; z++) {
+                for (int y = 0; y < generatedSize.y; y++) {
+                    final Material material = generated[x][z][y];
+                    if (material == null) continue;
+                    worldModification.setBlock(x + xOff, y + yOff, z + zOff, material);
+                }
             }
-        };
-        runnable.runTaskTimer(plugin, 20, 1);
+        }
     }
 
     public boolean isGenerated() {
