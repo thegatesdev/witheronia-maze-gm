@@ -79,6 +79,7 @@ public class MazeGenerator {
         private final Vector3 mazeSize;
         private final int corridorWidth;
         private final int wallThickness;
+        private final int sectionSize;
 
         private Context(BitSet[] contents, Material[][][] blocks, Vector3 mazeSize, int corridorWidth, int wallThickness) {
             this.contents = contents;
@@ -86,6 +87,7 @@ public class MazeGenerator {
             this.mazeSize = mazeSize;
             this.corridorWidth = corridorWidth;
             this.wallThickness = wallThickness;
+            this.sectionSize = corridorWidth + wallThickness;
         }
 
         public int getCorridorWidth() {
@@ -106,13 +108,17 @@ public class MazeGenerator {
         }
 
         public boolean inMaze(int x, int y, int z) {
-            return x >= 0 && y >= 0 && z >= 0 && x < mazeSize.x && y < mazeSize.y && z < mazeSize.z;
+            return inMaze(x, z) && y >= 0 && y < mazeSize.y;
+        }
+
+        public boolean inMaze(int x, int z) {
+            return x >= 0 && z >= 0 && x < mazeSize.x && z < mazeSize.z;
         }
 
         public WallAxis getWallAxisAt(int x, int y, int z) {
             if (!inMaze(x, y, z)) return WallAxis.NONE;
-            boolean hor = z % (corridorWidth + wallThickness) == 0;
-            boolean ver = x % (corridorWidth + wallThickness) == 0;
+            boolean hor = z % sectionSize == 0;
+            boolean ver = x % sectionSize == 0;
             if (hor) {
                 if (ver) return WallAxis.BOTH;
                 return WallAxis.HOR;
@@ -122,6 +128,13 @@ public class MazeGenerator {
 
         public void setBlockAt(int x, int y, int z, Material material) {
             if (inMaze(x, y, z)) blocks[x][z][y] = material;
+        }
+
+        // 0 0 -1 -2 -3 3 2 1 0 0
+        public int alignmentDistance(int i) {
+            final int dist = (i % sectionSize) - wallThickness + 1;
+            if (dist <= 0) return 0;
+            return -(dist > corridorWidth / 2d ? dist - corridorWidth - 1 : dist);
         }
     }
 }
