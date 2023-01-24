@@ -64,9 +64,28 @@ public class MazeGamemode extends JavaPlugin {
     private final MazeItems mazeItems = itemManager.addGroup(new MazeItems(this));
 
     // GENERATION
-
     private final MazeGenerator basicGenerator = new MazeGenerator().addFeatureGenerators((random, context, x, y, z, filled) -> {
-        if (filled) context.setBlockAt(x, y, z, Material.STONE);
+        if (filled) context.setBlockAt(x, y, z, Material.STONE_BRICKS);
+    }, (random, context, x, y, z, filled) -> {
+        if (y != 1 || filled) return;
+        final int distance = context.wallDistance(x, z, 2);
+        final Material toPlace = switch (distance) {
+            case 1 -> Material.RED_STAINED_GLASS;
+            case 2 -> Material.ORANGE_STAINED_GLASS;
+            case 3 -> Material.YELLOW_STAINED_GLASS;
+            case 4 -> Material.LIME_STAINED_GLASS;
+            case 5 -> Material.LIGHT_BLUE_STAINED_GLASS;
+            case 6 -> Material.CYAN_STAINED_GLASS;
+            case 7 -> Material.BLUE_STAINED_GLASS;
+            case 8 -> Material.MAGENTA_STAINED_GLASS;
+            case 9 -> Material.PURPLE_STAINED_GLASS;
+            case 10 -> Material.PINK_STAINED_GLASS;
+            case 11 -> Material.BROWN_STAINED_GLASS;
+            case 12 -> Material.GRAY_STAINED_GLASS;
+            case 13 -> Material.WHITE_STAINED_GLASS;
+            default -> null;
+        };
+        if (toPlace != null) context.setBlockAt(x, y, z, toPlace);
     });
 
     // -- PLUGIN

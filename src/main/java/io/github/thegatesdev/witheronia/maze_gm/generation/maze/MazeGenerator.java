@@ -18,25 +18,26 @@ public class MazeGenerator {
 
     private static Material[][][] generateFeatures(Collection<FeatureGenerator> generators, Random random, Vector3 size, int corridorWidth, int wallThickness) {
         final Maze maze = new Maze(size.x, size.z, corridorWidth, wallThickness);
-        maze.generate(random);
+        try {
+            maze.generate(random);
+        } catch (StackOverflowError stackOverflowError) {
+            throw new RuntimeException("StackOverFlow: Generated maze too big", stackOverflowError);
+        }
 
-        final Material[][][] materialGrid = new Material[size.x][size.z][size.y];
-        final Context context = new Context(maze.getGenerated(), materialGrid, size, corridorWidth, wallThickness);
+        final Context context = new Context(maze.getGenerated(), new Material[size.x][size.z][size.y], size, corridorWidth, wallThickness);
         for (FeatureGenerator generator : generators) {
             generator.onGenerationStart(random, context);
-            for (int x = 0, blocksLength = materialGrid.length; x < blocksLength; x++) {
-                final Material[][] block = materialGrid[x];
-                for (int z = 0, blockLength = block.length; z < blockLength; z++) {
-                    final Material[] materials = block[z];
+            for (int x = 0, blocksLength = size.x; x < blocksLength; x++) {
+                for (int z = 0, blockLength = size.z; z < blockLength; z++) {
                     final boolean filled = context.isWall(x, z);
-                    for (int y = 0, materialsLength = materials.length; y < materialsLength; y++) {
+                    for (int y = 0, materialsLength = size.y; y < materialsLength; y++) {
                         generator.onBlockGenerate(random, context, x, y, z, filled);
                     }
                 }
             }
             generator.onGenerationEnd(random, context);
         }
-        return materialGrid;
+        return context.blocks;
     }
 
     public void generate(long seed, Vector3 size, int corridorWidth, int wallThickness) {
@@ -81,6 +82,7 @@ public class MazeGenerator {
         private final int wallThickness;
         private final int sectionSize;
 
+
         private Context(BitSet[] contents, Material[][][] blocks, Vector3 mazeSize, int corridorWidth, int wallThickness) {
             this.contents = contents;
             this.blocks = blocks;
@@ -107,6 +109,11 @@ public class MazeGenerator {
             return contents[x].get(z);
         }
 
+        public boolean isWallSafe(int x, int z) {
+            if (!inMaze(x, z)) return false;
+            return isWall(x, z);
+        }
+
         public boolean inMaze(int x, int y, int z) {
             return inMaze(x, z) && y >= 0 && y < mazeSize.y;
         }
@@ -117,9 +124,8 @@ public class MazeGenerator {
 
         public WallAxis getWallAxisAt(int x, int y, int z) {
             if (!inMaze(x, y, z)) return WallAxis.NONE;
-            boolean hor = z % sectionSize == 0;
-            boolean ver = x % sectionSize == 0;
-            if (hor) {
+            final boolean ver = x % sectionSize == 0;
+            if (z % sectionSize == 0) {
                 if (ver) return WallAxis.BOTH;
                 return WallAxis.HOR;
             } else if (ver) return WallAxis.VER;
@@ -130,11 +136,39 @@ public class MazeGenerator {
             if (inMaze(x, y, z)) blocks[x][z][y] = material;
         }
 
-        // 0 0 -1 -2 -3 3 2 1 0 0
-        public int alignmentDistance(int i) {
-            final int dist = (i % sectionSize) - wallThickness + 1;
-            if (dist <= 0) return 0;
-            return -(dist > corridorWidth / 2d ? dist - corridorWidth - 1 : dist);
+        public int wallDistance(int x, int z, int maxSections) {
+            if (!inMaze(x, z) || isWall(x, z)) return 0;
+            final int xOffset = (x % sectionSize);
+            final int zOffset = (z % sectionSize);
+
+            int low = maxSections * sectionSize;
+            boolean found = false;
+
+            for (int sections = 0; sections < maxSections * sectionSize; sections += sectionSize) {
+                int xOffsetN = sectionSize - xOffset + sections;
+                int zOffsetN = sectionSize - zOffset - sections;
+
+                if (isWallSafe(x + xOffsetN, z)) {
+                    low = Math.min(low, xOffsetN); // Wall right
+                    if (low == 1) return 1;
+                    found = true;
+                }
+                if (isWallSafe(x - xOffset, z)) {
+                    low = Math.min(low, xOffset - 1); // Wall left
+                    if (low == 1) return 1;
+                    found = true;
+                }
+                if (isWallSafe(x, z + zOffsetN)) {
+                    low = Math.min(low, zOffsetN); // Wall up
+                    if (low == 1) return 1;
+                    found = true;
+                }
+                if (isWallSafe(x, z - zOffset)) {
+                    return Math.min(low, zOffset - 1); // Wall down
+                }
+                if (found) return low;
+            }
+            return low;
         }
     }
 }
