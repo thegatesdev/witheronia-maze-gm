@@ -18,10 +18,7 @@ public class MazeItems extends ItemGroup {
     private final MappedReactors<ItemStack, String> reactors;
     private final ExpandableType<CustomItem> type = new ExpandableType<>("maze_item", new ReadableData()
             .add("material", Readable.enumeration(Material.class))
-            .add("id", Readable.primitive(String.class)), data -> {
-        final Material material = data.get("material", Material.class);
-        return new CustomItem(data.getString("id"), material, new MetaBuilder(material));
-    });
+            .add("id", Readable.primitive(String.class)), data -> new CustomItem(data.getString("id"), new MetaBuilder(data.get("material", Material.class))));
 
     public MazeItems(MazeGamemode mazeGamemode) {
         super("maze_items", mazeGamemode.key("maze_item"), true);
