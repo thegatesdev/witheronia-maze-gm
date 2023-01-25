@@ -7,7 +7,7 @@ import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.skiller.Skiller;
-import io.github.thegatesdev.witheronia.maze_gm.commands.MazeCommands;
+import io.github.thegatesdev.witheronia.maze_gm.command.MazeCommands;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
