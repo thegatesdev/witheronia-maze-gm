@@ -132,7 +132,7 @@ public class MazeGamemode extends JavaPlugin {
 
         // REMAP
 
-        mazeItems.remapEvents(listenerManager);
+        mazeItems.reloadEvents(listenerManager);
 
         // FINISH
 
@@ -157,8 +157,9 @@ public class MazeGamemode extends JavaPlugin {
         }
         fileData.asMap().ifList("maze_items", list -> {
             for (final DataElement element : list) {
+                if (!element.isMap()) continue;
                 try {
-                    mazeItems.read(element);
+                    mazeItems.readItem(element.asMap());
                 } catch (ElementException e) {
                     logger.warning("Failed to read an item: " + e.getMessage());
                 }
