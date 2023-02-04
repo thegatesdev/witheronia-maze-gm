@@ -6,9 +6,9 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.LongArgument;
+import io.github.thegatesdev.threshold.WorldModification;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.Vector3;
-import io.github.thegatesdev.witheronia.maze_gm.util.WorldModification;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 

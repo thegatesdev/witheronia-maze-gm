@@ -1,7 +1,7 @@
 package io.github.thegatesdev.witheronia.maze_gm.generation.maze;
 
 import io.github.thegatesdev.maze_generator_lib.Maze;
-import io.github.thegatesdev.witheronia.maze_gm.util.WorldModification;
+import io.github.thegatesdev.threshold.WorldModification;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
