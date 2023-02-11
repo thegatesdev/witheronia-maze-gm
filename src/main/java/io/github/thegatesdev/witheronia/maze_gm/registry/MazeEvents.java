@@ -47,7 +47,7 @@ public class MazeEvents extends ReactorFactories {
 
         doWithFactories(EntityDamageEvent.class, eventFactory -> eventFactory.addPerformer("combined", e -> e instanceof EntityDamageByEntityEvent, e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()), ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
         doWithFactories(PlayerInteractEvent.class, eventFactory -> {
-            eventFactory.getReadableData()
+            eventFactory.getReadableOptions()
                     .add("click_type", Readable.enumeration(ClickType.class), ClickType.BOTH)
                     .add("click_location", Readable.enumeration(ClickLocation.class), ClickLocation.BOTH);
             eventFactory.addStaticCondition((data, e) -> {

@@ -1,6 +1,6 @@
 package io.github.thegatesdev.witheronia.maze_gm.util;
 
-import io.github.thegatesdev.mapletree.data.ReadableData;
+import io.github.thegatesdev.mapletree.data.ReadableOptions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -29,8 +29,8 @@ public class DisplayUtil {
         );
     }
 
-    public static Component displayReadableData(ReadableData readableData) {
-        final Map<String, ReadableData.Entry<?>> entries = readableData.getEntries();
+    public static Component displayReadableData(ReadableOptions readableData) {
+        final Map<String, ReadableOptions.Entry<?>> entries = readableData.getEntries();
         final List<Component> out = new ArrayList<>(entries.size());
         entries.forEach((s, entry) -> {
             final String id = entry.getDataType().id();

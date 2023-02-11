@@ -5,8 +5,8 @@ import io.github.thegatesdev.eventador.event.util.MappedReactors;
 import io.github.thegatesdev.eventador.factory.ReactorFactory;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.mapletree.data.Readable;
-import io.github.thegatesdev.mapletree.data.ReadableData;
-import io.github.thegatesdev.mapletree.data.ReadableDataHolder;
+import io.github.thegatesdev.mapletree.data.ReadableOptions;
+import io.github.thegatesdev.mapletree.data.ReadableOptionsHolder;
 import io.github.thegatesdev.skiller.CustomItem;
 import io.github.thegatesdev.skiller.ItemGroup;
 import io.github.thegatesdev.skiller.MetaBuilder;
@@ -17,9 +17,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class MazeItems extends ItemGroup implements ReadableDataHolder {
+public class MazeItems extends ItemGroup implements ReadableOptionsHolder {
     private final MappedReactors<ItemStack, String> reactors;
-    private final ReadableData itemOptions = new ReadableData()
+    private final ReadableOptions itemOptions = new ReadableOptions()
             .add("material", Readable.enumeration(Material.class))
             .add("id", Readable.primitive(String.class))
             .add("name", MazeDataTypes.COLORED_STRING, null)
@@ -52,7 +52,7 @@ public class MazeItems extends ItemGroup implements ReadableDataHolder {
     }
 
     @Override
-    public ReadableData getReadableData() {
+    public ReadableOptions getReadableOptions() {
         return itemOptions;
     }
 

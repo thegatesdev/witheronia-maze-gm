@@ -9,7 +9,7 @@ import io.github.thegatesdev.eventador.factory.ReactorFactory;
 import io.github.thegatesdev.eventador.registry.Factories;
 import io.github.thegatesdev.eventador.registry.ReactorFactories;
 import io.github.thegatesdev.mapletree.data.DataType;
-import io.github.thegatesdev.mapletree.data.ReadableData;
+import io.github.thegatesdev.mapletree.data.ReadableOptions;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil;
 import net.kyori.adventure.text.Component;
@@ -25,7 +25,7 @@ public class OptionsCommand {
                 new StringArgument("eventId").replaceSuggestions(ArgumentSuggestions.strings(reactorFactories.keySet()))
                         .executes((sender, args) -> {
                             final ReactorFactory<?> factory = reactorFactories.getFactory((String) args[0]);
-                            sender.sendMessage(DisplayUtil.displayList(Component.text("Event " + args[0]), DisplayUtil.displayReadableData(factory.getReadableData())));
+                            sender.sendMessage(DisplayUtil.displayList(Component.text("Event " + args[0]), DisplayUtil.displayReadableData(factory.getReadableOptions())));
                         })
         );
     }
@@ -60,14 +60,14 @@ public class OptionsCommand {
                                 .executes((sender, args) -> {
                                     final String factoryType = (String) args[0];
                                     final String factoryEntry = (String) args[1];
-                                    final ReadableData readableData = Factories.getFactoryRegistry(factoryType).get(factoryEntry).getReadableData();
+                                    final ReadableOptions readableData = Factories.getFactoryRegistry(factoryType).get(factoryEntry).getReadableOptions();
                                     sender.sendMessage(DisplayUtil.displayList(Component.text("Data for " + factoryType + " " + factoryEntry), DisplayUtil.displayReadableData(readableData)));
                                 })
                         )
         );
     }
 
-    public static ArgumentTree readableOptionsArg(String name, ReadableData readableData) {
+    public static ArgumentTree readableOptionsArg(String name, ReadableOptions readableData) {
         return new LiteralArgument(name).executes((sender, args) -> {
             sender.sendMessage(DisplayUtil.displayList(Component.text("Options for " + name), DisplayUtil.displayReadableData(readableData)));
         });

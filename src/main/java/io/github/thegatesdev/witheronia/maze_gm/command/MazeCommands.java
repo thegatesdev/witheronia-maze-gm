@@ -23,7 +23,7 @@ public class MazeCommands {
     }
 
     public void create() {
-        if (created) throw new RuntimeException("Already created");
+        if (created) throw new RuntimeException("Commands were already created");
 
         add(new LiteralArgument("basic_maze")
                 .then(GenerateMazeCommand.generateArg(mazeGamemode.getBasicGenerator()))
@@ -44,7 +44,7 @@ public class MazeCommands {
             options.then(OptionsCommand.eventOptionsArg(mazeGamemode.getMazeEvents()));
             options.then(OptionsCommand.dataTypeOptionsArg());
             options.then(OptionsCommand.factoryOptionsArg());
-            options.then(OptionsCommand.readableOptionsArg("maze_item", mazeGamemode.getMazeItems().getReadableData()));
+            options.then(OptionsCommand.readableOptionsArg("maze_item", mazeGamemode.getMazeItems().getReadableOptions()));
             add(options);
         }
 
