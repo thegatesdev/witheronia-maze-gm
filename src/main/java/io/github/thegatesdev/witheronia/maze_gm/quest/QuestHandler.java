@@ -6,8 +6,8 @@ import io.github.thegatesdev.eventador.event.util.EventData;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -25,46 +25,44 @@ public class QuestHandler implements ListenerManager.EventListener {
         this.questData = data;
 
         questTriggers = new EventData<>(Player.class, eventManager)
-                .add(PlayerInteractEntityEvent.class, "interact_entity", PlayerEvent::getPlayer);
+                .add(PlayerInteractEntityEvent.class, "right_click_entity", event -> event.getHand() == EquipmentSlot.HAND ? event.getPlayer() : null);
         questLineTriggers = new EventData<>(QuestData.QuestLine.class, eventManager)
-                .add(PlayerInteractEntityEvent.class, "interact_entity", event -> {
-                    QuestData.QuestEntity entity = questData.getEntity(event.getRightClicked().getUniqueId());
-                    if (entity == null) return null;
-                    return entity.questLine();
-                });
+                .add(PlayerInteractEntityEvent.class, "right_click_entity", event -> event.getHand() == EquipmentSlot.HAND ? questData.getEntityQuests(event.getRightClicked().getUniqueId()) : null);
     }
 
     @Override
     public <E extends Event> boolean callEvent(@NotNull final E e, final Class<E> eventClass) {
-        Iterable<Player> playerData = questTriggers.getData(eventClass, e);
-        if (playerData == null) return false;
-        Iterable<QuestData.QuestLine> questLineData = questLineTriggers.getData(eventClass, e);
-        if (questLineData != null) { // The player interacted with a questLine holder
-            for (final QuestData.QuestLine questLine : questLineData) {
-                if (questLine == null) continue;
-                for (final Player player : playerData) {
-                    if (player == null) continue;
-                    onQuestLineInteract(player, questLine);
-                }
-            }
-            return true;
-        } else { // The player might have completed a quest with this event.
-            for (final Player player : playerData) {
-                if (player == null) continue;
-                UUID playerId = player.getUniqueId();
-                for (final String questId : questData.getPlayer(playerId).active()) {
-                    Quest quest = questData.getQuest(questId);
-                    Quest.Goal<?> goal = quest.currentGoal(playerId);
-                    if (goal.eventClass() != eventClass) continue;
-                    @SuppressWarnings("unchecked") Quest.Goal<E> goal1 = (Quest.Goal<E>) goal;
-                    if (goal1.canProceed().test(e)) {
-                        goal1.finish(e);
-                        quest.progressPlayer(playerId).accept(playerId);
+        Iterable<Player> players = questTriggers.getData(eventClass, e);
+        if (players == null) return false;
+        for (final Player player : players) {
+            UUID playerId = player.getUniqueId();
+            QuestData.PlayerEntry playerData = questData.getPlayer(playerId);
+            for (final String questId : playerData.active()) {
+                Quest quest = questData.getQuest(questId);
+                Quest.Goal<?> goal = quest.currentGoal(playerId);
+                if (eventClass.isAssignableFrom(goal.eventClass())) continue;
+                //noinspection unchecked
+                if (((Quest.Goal<E>) goal).tryComplete(e)) { // Completed goal
+                    if (quest.progressPlayer(playerId)) { // Completed quest
+                        playerData.active().remove(questId);
+                        playerData.finished().add(questId);
                     }
+                    return true;
                 }
             }
         }
-        return false;
+        boolean cancel = false;
+        Iterable<QuestData.QuestLine> questLines = questLineTriggers.getData(eventClass, e);
+        if (questLines != null) { // The player interacted with a questLine holder
+            for (final QuestData.QuestLine questLine : questLines) {
+                for (final Player player : players) {
+                    onQuestLineInteract(player, questLine);
+                    cancel = true;
+                }
+            }
+        } // The player might have completed a quest with this event.
+
+        return cancel;
     }
 
     private void onQuestLineInteract(Player player, QuestData.QuestLine questLine) {

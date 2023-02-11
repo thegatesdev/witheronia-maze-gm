@@ -23,8 +23,23 @@ public class Quest implements Identifiable {
         this.id = id;
     }
 
+    public <E extends Event> Quest addGoal(Class<E> eventClass, Predicate<E> canProceed, Consumer<UUID> onAccept,
+                                           Consumer<E> onFinish) {
+        return addGoal(new Goal<>(eventClass, canProceed, onAccept, onFinish));
+    }
+
     public Quest addGoal(Goal<?> goal) {
         goals.add(goal);
+        return this;
+    }
+
+    public Quest onAccept(final Consumer<UUID> acceptAction) {
+        this.acceptAction = acceptAction;
+        return this;
+    }
+
+    public Quest onComplete(final Consumer<UUID> completeAction) {
+        this.completeAction = completeAction;
         return this;
     }
 
@@ -59,13 +74,18 @@ public class Quest implements Identifiable {
         return goals.get(progression);
     }
 
-    public Goal<?> progressPlayer(UUID playerId) {
+    public boolean progressPlayer(UUID playerId) {
         Integer progression = playerProgression.computeIfPresent(playerId, (uuid, integer) -> ++integer);
-        if (progression == null || progression >= goals.size()) return null;
-        return goals.get(progression);
+        if (progression == null) return false;
+        if (progression >= goals.size()) {
+            completePlayer(playerId);
+            return true;
+        }
+        goals.get(progression).accept(playerId);
+        return false;
     }
 
-    public void completePlayer(UUID playerId) {
+    private void completePlayer(UUID playerId) {
         playerProgression.remove(playerId);
         if (completeAction != null) completeAction.accept(playerId);
     }
@@ -73,11 +93,15 @@ public class Quest implements Identifiable {
 
     public record Goal<E extends Event>(Class<E> eventClass, Predicate<E> canProceed, Consumer<UUID> onAccept,
                                         Consumer<E> onFinish) {
-        public void finish(E event) {
-            if (onFinish != null) onFinish.accept(event);
+        public boolean tryComplete(E event) {
+            if (canProceed.test(event)) {
+                if (onFinish != null) onFinish.accept(event);
+                return true;
+            }
+            return false;
         }
 
-        public void accept(UUID playerId) {
+        private void accept(UUID playerId) {
             if (onAccept != null) onAccept.accept(playerId);
         }
     }

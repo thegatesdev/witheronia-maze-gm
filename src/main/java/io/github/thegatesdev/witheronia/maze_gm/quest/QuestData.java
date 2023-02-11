@@ -26,8 +26,10 @@ public class QuestData {
     }
 
 
-    public QuestEntity getEntity(UUID entityUUID) {
-        return questEntities.get(entityUUID);
+    public QuestLine getEntityQuests(UUID entityUUID) {
+        QuestEntity entity = questEntities.get(entityUUID);
+        if (entity == null) return null;
+        return entity.questLine;
     }
 
     public void addEntityQuest(UUID entity, String questId) {
