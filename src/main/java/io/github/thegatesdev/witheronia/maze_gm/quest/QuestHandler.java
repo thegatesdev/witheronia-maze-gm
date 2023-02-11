@@ -41,13 +41,16 @@ public class QuestHandler implements ListenerManager.EventListener {
         Iterable<QuestData.QuestLine> questLineData = questLineTriggers.getData(eventClass, e);
         if (questLineData != null) { // The player interacted with a questLine holder
             for (final QuestData.QuestLine questLine : questLineData) {
+                if (questLine == null) continue;
                 for (final Player player : playerData) {
+                    if (player == null) continue;
                     onQuestLineInteract(player, questLine);
                 }
             }
             return true;
         } else { // The player might have completed a quest with this event.
             for (final Player player : playerData) {
+                if (player == null) continue;
                 UUID playerId = player.getUniqueId();
                 for (final String questId : questData.getPlayer(playerId).active()) {
                     Quest quest = questData.getQuest(questId);
