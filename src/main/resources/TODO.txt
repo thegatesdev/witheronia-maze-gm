@@ -1,2 +1,6 @@
 relative velocity
 summon entity, set block with nbt
+
+click entity (start quest) -> collect item (subquest) -> click entity (finish quest)
+
+Quest = event + finish conditions

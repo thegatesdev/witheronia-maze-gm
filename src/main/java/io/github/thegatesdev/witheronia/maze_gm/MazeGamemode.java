@@ -9,12 +9,17 @@ import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.skiller.Skiller;
 import io.github.thegatesdev.witheronia.maze_gm.command.MazeCommands;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
+import io.github.thegatesdev.witheronia.maze_gm.quest.Quest;
+import io.github.thegatesdev.witheronia.maze_gm.quest.QuestData;
+import io.github.thegatesdev.witheronia.maze_gm.quest.QuestHandler;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeItems;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -88,6 +93,11 @@ public class MazeGamemode extends JavaPlugin {
         if (toPlace != null) context.setBlockAt(x, y, z, toPlace);
     });
 
+    // QUESTS
+
+    private final QuestData questData = new QuestData().addQuest(new Quest("glow_pig").addGoal(new Quest.Goal<>(PlayerInteractEntityEvent.class, event -> event.getRightClicked().getType() == EntityType.PIG, null, event -> event.getRightClicked().setGlowing(true))));
+    private final QuestHandler questHandler = new QuestHandler(questData, eventManager);
+
     // -- PLUGIN
 
     @Override
@@ -100,6 +110,7 @@ public class MazeGamemode extends JavaPlugin {
     @Override
     public void onEnable() {
         commands.register();
+        listenerManager.add(questHandler, questHandler.eventSet());
         reload();
     }
 
@@ -200,6 +211,10 @@ public class MazeGamemode extends JavaPlugin {
 
     public MazeEvents getMazeEvents() {
         return mazeEvents;
+    }
+
+    public QuestData getQuestData() {
+        return questData;
     }
 
     // -- UTIL
