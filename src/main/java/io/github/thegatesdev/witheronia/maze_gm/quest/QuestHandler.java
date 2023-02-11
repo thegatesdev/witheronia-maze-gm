@@ -53,8 +53,7 @@ public class QuestHandler implements ListenerManager.EventListener {
                     Quest quest = questData.getQuest(questId);
                     Quest.Goal<?> goal = quest.currentGoal(playerId);
                     if (goal.eventClass() != eventClass) continue;
-                    //noinspection unchecked
-                    Quest.Goal<E> goal1 = (Quest.Goal<E>) goal;
+                    @SuppressWarnings("unchecked") Quest.Goal<E> goal1 = (Quest.Goal<E>) goal;
                     if (goal1.canProceed().test(e)) {
                         goal1.finish(e);
                         quest.progressPlayer(playerId).accept(playerId);
