@@ -16,7 +16,7 @@ public record Goal<E extends Event>(Class<E> eventClass, BiPredicate<E, Class<E>
         return reactor.test(event, eventClass);
     }
 
-    public void accept(Player player) {
+    public void onAccept(Player player) {
         if (onAccept != null) onAccept.accept(player);
     }
 }

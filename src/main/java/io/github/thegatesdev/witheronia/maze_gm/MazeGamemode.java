@@ -22,7 +22,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -102,7 +102,9 @@ public class MazeGamemode extends JavaPlugin {
 
     private final QuestData questData = new QuestData()
             .addQuest(new Quest("give_stone_sword")
-                    .addGoal(new Goal<>(PlayerInteractEntityEvent.class, (event, eventClass) -> {
+                    .onAccept(player -> player.setGlowing(false))
+                    .onComplete(player -> player.setGlowing(true))
+                    .addGoal(new Goal<>(PlayerInteractAtEntityEvent.class, (event, eventClass) -> {
                         ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
                         if (hand.getType() != Material.STONE_SWORD) return false;
                         hand.setAmount(hand.getAmount() - 1);

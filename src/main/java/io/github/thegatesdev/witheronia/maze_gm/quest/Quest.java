@@ -58,8 +58,10 @@ public class Quest implements Identifiable {
 
 
     public void acceptPlayer(Player player) {
-        if (playerProgression.computeIfAbsent(player.getUniqueId(), uuid -> 0) == 0 && acceptAction != null)
+        if (playerProgression.computeIfAbsent(player.getUniqueId(), uuid -> 0) == 0 && acceptAction != null) {
             acceptAction.accept(player);
+            goals.get(0).onAccept(player);
+        }
     }
 
     public Goal<?> currentGoal(UUID playerId) {
@@ -75,7 +77,7 @@ public class Quest implements Identifiable {
             completePlayer(player);
             return true;
         }
-        goals.get(progression).accept(player);
+        goals.get(progression).onAccept(player);
         return false;
     }
 

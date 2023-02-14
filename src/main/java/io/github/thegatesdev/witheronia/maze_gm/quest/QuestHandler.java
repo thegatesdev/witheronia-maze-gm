@@ -7,7 +7,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ public class QuestHandler implements ListenerManager.EventListener {
 
         playerEvents = new EventData<>(Player.class, eventManager).add(PlayerEvent.class, "player", PlayerEvent::getPlayer);
         questLineTriggers = new EventData<>(QuestData.QuestLine.class, eventManager)
-                .add(PlayerInteractEntityEvent.class, "right_click_entity", event -> event.getHand() == EquipmentSlot.HAND,
+                .add(PlayerInteractAtEntityEvent.class, "right_click_entity", event -> event.getHand() == EquipmentSlot.HAND,
                         event -> questData.getEntityQuests(event.getRightClicked()))
                 .add(PlayerInteractEvent.class, "right_click_block", event -> event.hasBlock() && event.getHand() == EquipmentSlot.HAND,
                         event -> questData.getBlockQuests(Objects.requireNonNull(event.getClickedBlock()).getLocation()));
@@ -45,7 +45,7 @@ public class QuestHandler implements ListenerManager.EventListener {
             for (final String questId : playerData.active()) {
                 Quest quest = questData.getQuest(questId);
                 Goal<?> goal = quest.currentGoal(playerId);
-                if (eventClass.isAssignableFrom(goal.eventClass())) continue;
+                if (!goal.eventClass().isAssignableFrom(eventClass)) continue;
                 if (!((Goal<E>) goal).doesComplete(e)) continue;
                 // Completed goal
                 if (quest.progressPlayer(player)) { // Completed quest
@@ -89,8 +89,11 @@ public class QuestHandler implements ListenerManager.EventListener {
             return;
         }
         Quest newQuest = questData.getQuest(newQuestId);
-        newQuest.acceptPlayer(player);
-        playerData.active().add(newQuestId);
+        Set<String> required = newQuest.getRequiredQuests();
+        if (required == null || playerData.finished().containsAll(required)) {
+            newQuest.acceptPlayer(player);
+            playerData.active().add(newQuestId);
+        }
     }
 
     public Set<Class<? extends Event>> eventSet() {
