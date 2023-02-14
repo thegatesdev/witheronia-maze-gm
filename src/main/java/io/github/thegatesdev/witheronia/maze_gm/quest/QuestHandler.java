@@ -6,11 +6,14 @@ import io.github.thegatesdev.eventador.event.util.EventData;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,50 +21,47 @@ public class QuestHandler implements ListenerManager.EventListener {
 
     private final QuestData questData;
 
-    private final EventData<Player> questTriggers;
+    private final EventData<Player> playerEvents;
     private final EventData<QuestData.QuestLine> questLineTriggers;
 
     public QuestHandler(final QuestData data, EventManager eventManager) {
         this.questData = data;
 
-        questTriggers = new EventData<>(Player.class, eventManager)
-                .add(PlayerInteractEntityEvent.class, "right_click_entity", event -> event.getHand() == EquipmentSlot.HAND ? event.getPlayer() : null);
+        playerEvents = new EventData<>(Player.class, eventManager).add(PlayerEvent.class, "player", PlayerEvent::getPlayer);
         questLineTriggers = new EventData<>(QuestData.QuestLine.class, eventManager)
-                .add(PlayerInteractEntityEvent.class, "right_click_entity", event -> event.getHand() == EquipmentSlot.HAND ? questData.getEntityQuests(event.getRightClicked().getUniqueId()) : null);
+                .add(PlayerInteractEntityEvent.class, "right_click_entity", event -> event.getHand() == EquipmentSlot.HAND,
+                        event -> questData.getEntityQuests(event.getRightClicked()))
+                .add(PlayerInteractEvent.class, "right_click_block", event -> event.hasBlock() && event.getHand() == EquipmentSlot.HAND,
+                        event -> questData.getBlockQuests(Objects.requireNonNull(event.getClickedBlock()).getLocation()));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <E extends Event> boolean callEvent(@NotNull final E e, final Class<E> eventClass) {
-        Iterable<Player> players = questTriggers.getData(eventClass, e);
-        if (players == null) return false;
-        for (final Player player : players) {
+        final Iterable<Player> players = playerEvents.getData(eventClass, e);
+        for (final Player player : players) { // The player might have completed a quest with this event.
             UUID playerId = player.getUniqueId();
             QuestData.PlayerEntry playerData = questData.getPlayer(playerId);
             for (final String questId : playerData.active()) {
                 Quest quest = questData.getQuest(questId);
-                Quest.Goal<?> goal = quest.currentGoal(playerId);
+                Goal<?> goal = quest.currentGoal(playerId);
                 if (eventClass.isAssignableFrom(goal.eventClass())) continue;
-                //noinspection unchecked
-                if (((Quest.Goal<E>) goal).tryComplete(e)) { // Completed goal
-                    if (quest.progressPlayer(playerId)) { // Completed quest
-                        playerData.active().remove(questId);
-                        playerData.finished().add(questId);
-                    }
-                    return true;
+                if (!((Goal<E>) goal).doesComplete(e)) continue;
+                // Completed goal
+                if (quest.progressPlayer(player)) { // Completed quest
+                    playerData.active().remove(questId);
+                    playerData.finished().add(questId);
                 }
+                return true;
             }
         }
         boolean cancel = false;
-        Iterable<QuestData.QuestLine> questLines = questLineTriggers.getData(eventClass, e);
-        if (questLines != null) { // The player interacted with a questLine holder
-            for (final QuestData.QuestLine questLine : questLines) {
-                for (final Player player : players) {
-                    onQuestLineInteract(player, questLine);
-                    cancel = true;
-                }
+        for (final QuestData.QuestLine questLine : questLineTriggers.getData(eventClass, e)) {
+            for (final Player player : players) {
+                onQuestLineInteract(player, questLine);
+                cancel = true;
             }
-        } // The player might have completed a quest with this event.
-
+        }
         return cancel;
     }
 
@@ -89,13 +89,13 @@ public class QuestHandler implements ListenerManager.EventListener {
             return;
         }
         Quest newQuest = questData.getQuest(newQuestId);
-        newQuest.acceptPlayer(playerId);
+        newQuest.acceptPlayer(player);
         playerData.active().add(newQuestId);
     }
 
     public Set<Class<? extends Event>> eventSet() {
         Set<Class<? extends Event>> eventSet = new HashSet<>();
-        eventSet.addAll(questTriggers.eventSet());
+        eventSet.addAll(playerEvents.eventSet());
         eventSet.addAll(questLineTriggers.eventSet());
         return eventSet;
     }

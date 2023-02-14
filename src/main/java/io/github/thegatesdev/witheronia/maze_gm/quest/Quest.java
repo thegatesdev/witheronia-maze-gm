@@ -1,11 +1,10 @@
 package io.github.thegatesdev.witheronia.maze_gm.quest;
 
 import io.github.thegatesdev.mapletree.registry.Identifiable;
-import org.bukkit.event.Event;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class Quest implements Identifiable {
 
@@ -16,16 +15,11 @@ public class Quest implements Identifiable {
     private final List<Goal<?>> goals = new ArrayList<>();
     private TreeMap<UUID, Integer> playerProgression = new TreeMap<>();
 
-    private Consumer<UUID> completeAction, acceptAction;
+    private Consumer<Player> completeAction, acceptAction;
 
 
     public Quest(final String id) {
         this.id = id;
-    }
-
-    public <E extends Event> Quest addGoal(Class<E> eventClass, Predicate<E> canProceed, Consumer<UUID> onAccept,
-                                           Consumer<E> onFinish) {
-        return addGoal(new Goal<>(eventClass, canProceed, onAccept, onFinish));
     }
 
     public Quest addGoal(Goal<?> goal) {
@@ -33,12 +27,12 @@ public class Quest implements Identifiable {
         return this;
     }
 
-    public Quest onAccept(final Consumer<UUID> acceptAction) {
+    public Quest onAccept(final Consumer<Player> acceptAction) {
         this.acceptAction = acceptAction;
         return this;
     }
 
-    public Quest onComplete(final Consumer<UUID> completeAction) {
+    public Quest onComplete(final Consumer<Player> completeAction) {
         this.completeAction = completeAction;
         return this;
     }
@@ -63,9 +57,9 @@ public class Quest implements Identifiable {
     }
 
 
-    public void acceptPlayer(UUID playerId) {
-        if (playerProgression.computeIfAbsent(playerId, uuid -> 0) == 0 && acceptAction != null)
-            acceptAction.accept(playerId);
+    public void acceptPlayer(Player player) {
+        if (playerProgression.computeIfAbsent(player.getUniqueId(), uuid -> 0) == 0 && acceptAction != null)
+            acceptAction.accept(player);
     }
 
     public Goal<?> currentGoal(UUID playerId) {
@@ -74,37 +68,22 @@ public class Quest implements Identifiable {
         return goals.get(progression);
     }
 
-    public boolean progressPlayer(UUID playerId) {
-        Integer progression = playerProgression.computeIfPresent(playerId, (uuid, integer) -> ++integer);
+    public boolean progressPlayer(Player player) {
+        Integer progression = playerProgression.computeIfPresent(player.getUniqueId(), (uuid, integer) -> ++integer);
         if (progression == null) return false;
         if (progression >= goals.size()) {
-            completePlayer(playerId);
+            completePlayer(player);
             return true;
         }
-        goals.get(progression).accept(playerId);
+        goals.get(progression).accept(player);
         return false;
     }
 
-    private void completePlayer(UUID playerId) {
-        playerProgression.remove(playerId);
-        if (completeAction != null) completeAction.accept(playerId);
+    private void completePlayer(Player player) {
+        playerProgression.remove(player.getUniqueId());
+        if (completeAction != null) completeAction.accept(player);
     }
 
-
-    public record Goal<E extends Event>(Class<E> eventClass, Predicate<E> canProceed, Consumer<UUID> onAccept,
-                                        Consumer<E> onFinish) {
-        public boolean tryComplete(E event) {
-            if (canProceed.test(event)) {
-                if (onFinish != null) onFinish.accept(event);
-                return true;
-            }
-            return false;
-        }
-
-        private void accept(UUID playerId) {
-            if (onAccept != null) onAccept.accept(playerId);
-        }
-    }
 
     @Override
     public String id() {
