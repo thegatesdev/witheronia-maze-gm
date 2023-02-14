@@ -9,17 +9,21 @@ import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.skiller.Skiller;
 import io.github.thegatesdev.witheronia.maze_gm.command.MazeCommands;
 import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
+import io.github.thegatesdev.witheronia.maze_gm.quest.Goal;
 import io.github.thegatesdev.witheronia.maze_gm.quest.Quest;
 import io.github.thegatesdev.witheronia.maze_gm.quest.QuestData;
 import io.github.thegatesdev.witheronia.maze_gm.quest.QuestHandler;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeItems;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -49,6 +53,7 @@ public class MazeGamemode extends JavaPlugin {
     // PLUGIN
 
     private final Logger logger = getLogger();
+    private final Server server = getServer();
 
     private final MazeCommands commands = new MazeCommands(this);
 
@@ -95,7 +100,16 @@ public class MazeGamemode extends JavaPlugin {
 
     // QUESTS
 
-    private final QuestData questData = new QuestData().addQuest(new Quest("glow_pig").addGoal(new Quest.Goal<>(PlayerInteractEntityEvent.class, event -> event.getRightClicked().getType() == EntityType.PIG, null, event -> event.getRightClicked().setGlowing(true))));
+    private final QuestData questData = new QuestData()
+            .addQuest(new Quest("give_stone_sword")
+                    .addGoal(new Goal<>(PlayerInteractEntityEvent.class, (event, eventClass) -> {
+                        ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
+                        if (hand.getType() != Material.STONE_SWORD) return false;
+                        hand.setAmount(hand.getAmount() - 1);
+                        event.getPlayer().sendMessage(Component.text("Thank you!", TextColor.color(0, 255, 100)));
+                        return true;
+                    }, player -> player.sendMessage(Component.text("Can you please give me a stone sword?", TextColor.color(100, 255, 100)))))
+            );
     private final QuestHandler questHandler = new QuestHandler(questData, eventManager);
 
     // -- PLUGIN
