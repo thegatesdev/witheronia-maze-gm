@@ -8,12 +8,20 @@ import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.skiller.Skiller;
 import io.github.thegatesdev.witheronia.maze_gm.command.MazeCommands;
+import io.github.thegatesdev.witheronia.maze_gm.quest.Goal;
+import io.github.thegatesdev.witheronia.maze_gm.quest.GoalListener;
+import io.github.thegatesdev.witheronia.maze_gm.quest.Quest;
+import io.github.thegatesdev.witheronia.maze_gm.quest.QuestData;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeItems;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -58,6 +66,23 @@ public class MazeGamemode extends JavaPlugin {
 
     private final MazeEvents mazeEvents = new MazeEvents(eventManager); // Options for reading events.
     private final ListenerManager listenerManager = new ListenerManager(this); // Run listeners on certain events.
+
+    // QUEST
+
+    private final QuestData questData = new QuestData();
+    private final GoalListener goalListener = new GoalListener(questData, eventManager);
+
+    {
+        questData.addQuest(new Quest("bring_some_blocks")
+                .addGoals(
+                        new Goal<>(PlayerInteractAtEntityEvent.class, (event) -> {
+                            ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+                            if (item.getType() != Material.DIRT) return false;
+                            item.setAmount(item.getAmount() - 1);
+                            return true;
+                        }).onAccept(player -> player.sendMessage(Component.text("test")))
+                ));
+    }
 
     // ITEM
 

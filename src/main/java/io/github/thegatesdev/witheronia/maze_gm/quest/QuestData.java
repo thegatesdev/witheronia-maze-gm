@@ -1,65 +1,47 @@
 package io.github.thegatesdev.witheronia.maze_gm.quest;
 
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
 
 import java.util.*;
 
 public class QuestData {
 
     private final Map<String, Quest> questPool = new HashMap<>();
+    private final Set<Class<? extends Event>> questEvents = new HashSet<>();
 
     private final Map<UUID, PlayerEntry> playerQuestData = new HashMap<>();
 
-    private final Map<UUID, QuestLine> questEntities = new HashMap<>();
-    private final Map<Chunk, Map<Location, QuestLine>> questBlocks = new HashMap<>();
+    private final Map<UUID, Set<String>> questEntities = new HashMap<>();
+
 
     public QuestData addQuest(Quest quest) {
         questPool.putIfAbsent(quest.id(), quest);
+        questEvents.addAll(quest.getGoalEvents());
+        return this;
+    }
+
+    public QuestData addQuest(Quest... quests) {
+        for (final Quest quest : quests) addQuest(quest);
         return this;
     }
 
     public Quest getQuest(String id) {
-        return questPool.get(id);
+        final Quest quest = questPool.get(id);
+        if (quest == null) throw new RuntimeException("Unknown quest '%s'".formatted(id));
+        return quest;
     }
 
     public Set<String> getQuestIds() {
         return questPool.keySet();
     }
 
-
-    public QuestLine getEntityQuests(UUID entityUUID) {
-        return questEntities.get(entityUUID);
+    public Set<Class<? extends Event>> getQuestEvents() {
+        return questEvents;
     }
-
-    public QuestLine getEntityQuests(Entity entity) {
-        return getEntityQuests(entity.getUniqueId());
-    }
-
-    public void addEntityQuest(UUID entity, String questId) {
-        if (!questPool.containsKey(questId)) throw new RuntimeException("This quest does not exist");
-        questEntities.computeIfAbsent(entity, uuid -> new QuestLine()).quests.add(questId);
-    }
-
-    public void populateEntity(UUID entity, QuestLine questLine) {
-        questEntities.put(entity, questLine);
-    }
-
-
-    public QuestLine getBlockQuests(Location location) {
-        final Map<Location, QuestLine> chunkLocations = questBlocks.get(location.getChunk());
-        return chunkLocations == null ? null : chunkLocations.get(location);
-    }
-
-    public void addBockQuest(Location location, String questId) {
-        if (!questPool.containsKey(questId)) throw new RuntimeException("This quest does not exist");
-        questBlocks.computeIfAbsent(location.getChunk(), chunk -> new HashMap<>()).computeIfAbsent(location, location1 -> new QuestLine()).quests.add(questId);
-    }
-
+    
 
     public PlayerEntry getPlayer(UUID playerUUID) {
-        return playerQuestData.computeIfAbsent(playerUUID, uuid -> new PlayerEntry(new HashSet<>(), new HashSet<>()));
+        return playerQuestData.get(playerUUID);
     }
 
     public void populatePlayer(UUID playerUUID, PlayerEntry playerEntry) {
@@ -67,17 +49,35 @@ public class QuestData {
     }
 
 
-    public record PlayerEntry(Set<String> finished, Set<String> active) {
-    }
+    public class PlayerEntry {
+        private final Set<String> finished;
+        private final List<Quest> active;
 
-    public record QuestLine(List<String> quests, Map<UUID, Integer> playerProgression) {
-        public QuestLine() {
-            this(new ArrayList<>(1), new HashMap<>());
+        private PlayerEntry(final Set<String> finished, final List<Quest> active) {
+            this.finished = finished;
+            this.active = active;
         }
 
-        public String getQuest(int index) {
-            if (index >= quests.size()) return null;
-            return quests.get(index);
+        private PlayerEntry() {
+            this(new HashSet<>(), new ArrayList<>());
+        }
+
+        public void setActive(String questId) {
+            if (finished.contains(questId)) throw new RuntimeException("Cannot activate finished quest!");
+            active.add(getQuest(questId));
+        }
+
+        public void setFinished(String questId) {
+            active.remove(getQuest(questId));
+            finished.add(questId);
+        }
+
+        public List<Quest> getActive() {
+            return active;
+        }
+
+        public Set<String> getFinished() {
+            return finished;
         }
     }
 }

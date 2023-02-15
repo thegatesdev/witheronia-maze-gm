@@ -3,20 +3,35 @@ package io.github.thegatesdev.witheronia.maze_gm.quest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-public record Goal<E extends Event>(Class<E> eventClass, BiPredicate<E, Class<E>> reactor, Consumer<Player> onAccept) {
+public class Goal<E extends Event> {
 
-    public Goal(Class<E> eventClass, BiPredicate<E, Class<E>> reactor) {
-        this(eventClass, reactor, null);
+    private final Class<E> eventClass;
+    private final Predicate<E> doesComplete;
+
+    private Consumer<Player> acceptAction;
+
+    public Goal(Class<E> eventClass, Predicate<E> doesComplete) {
+        this.eventClass = eventClass;
+        this.doesComplete = doesComplete;
+    }
+
+    public Goal<E> onAccept(final Consumer<Player> acceptAction) {
+        this.acceptAction = acceptAction;
+        return this;
     }
 
     public boolean doesComplete(E event) {
-        return reactor.test(event, eventClass);
+        return doesComplete.test(event);
     }
 
-    public void onAccept(Player player) {
-        if (onAccept != null) onAccept.accept(player);
+    public void accept(Player player) {
+        if (acceptAction != null) acceptAction.accept(player);
+    }
+
+    public Class<E> getEventClass() {
+        return eventClass;
     }
 }
