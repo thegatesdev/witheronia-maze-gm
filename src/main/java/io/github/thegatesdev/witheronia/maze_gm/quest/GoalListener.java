@@ -31,7 +31,9 @@ public class GoalListener implements ListenerManager.EventListener {
                 final Goal<?> goal = quest.currentGoal(playerId);
                 if (!eventClass.isAssignableFrom(goal.getEventClass())) continue;
                 if (!((Goal<E>) goal).doesComplete(event)) continue;
-                quest.progress(player);
+                if (quest.progress(player)) {
+                    playerQuests.setFinished(quest.id());
+                }
             }
         }
         return false;
