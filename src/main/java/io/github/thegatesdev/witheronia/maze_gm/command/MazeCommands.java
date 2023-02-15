@@ -7,10 +7,8 @@ import dev.jorel.commandapi.executors.CommandExecutor;
 import io.github.thegatesdev.skiller.ItemGroup;
 import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
-import io.github.thegatesdev.witheronia.maze_gm.command.admin.GenerateMazeCommand;
 import io.github.thegatesdev.witheronia.maze_gm.command.admin.GiveItemCommand;
 import io.github.thegatesdev.witheronia.maze_gm.command.admin.OptionsCommand;
-import io.github.thegatesdev.witheronia.maze_gm.command.admin.QuestCommand;
 
 public class MazeCommands {
     private final MazeGamemode mazeGamemode;
@@ -27,8 +25,7 @@ public class MazeCommands {
         if (created) throw new RuntimeException("Commands were already created");
 
         add(new LiteralArgument("basic_maze")
-                .then(GenerateMazeCommand.generateArg(mazeGamemode.getBasicGenerator()))
-                .then(GenerateMazeCommand.placeBlocksArg(mazeGamemode, mazeGamemode.getBasicGenerator()))
+
         );
 
         {
@@ -42,7 +39,7 @@ public class MazeCommands {
 
         {
             final LiteralArgument quest = new LiteralArgument("quest");
-            quest.then(QuestCommand.addEntityQuestArg(mazeGamemode.getQuestData()));
+            //quest.then(QuestCommand.addEntityQuestArg(mazeGamemode.getQuestData()));
             add(quest);
         }
 

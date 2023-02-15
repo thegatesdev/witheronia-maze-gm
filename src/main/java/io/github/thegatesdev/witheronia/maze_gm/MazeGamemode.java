@@ -8,22 +8,12 @@ import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.skiller.ItemManager;
 import io.github.thegatesdev.skiller.Skiller;
 import io.github.thegatesdev.witheronia.maze_gm.command.MazeCommands;
-import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
-import io.github.thegatesdev.witheronia.maze_gm.quest.Goal;
-import io.github.thegatesdev.witheronia.maze_gm.quest.Quest;
-import io.github.thegatesdev.witheronia.maze_gm.quest.QuestData;
-import io.github.thegatesdev.witheronia.maze_gm.quest.QuestHandler;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeItems;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -73,47 +63,6 @@ public class MazeGamemode extends JavaPlugin {
 
     private final MazeItems mazeItems = itemManager.addGroup(new MazeItems(this));
 
-    // GENERATION
-    private final MazeGenerator basicGenerator = new MazeGenerator().addFeatureGenerators((random, context, x, y, z, filled) -> {
-        if (filled) context.setBlockAt(x, y, z, Material.STONE_BRICKS);
-    }, (random, context, x, y, z, filled) -> {
-        if (y != 1 || filled) return;
-        final int distance = context.wallDistance(x, z, 2);
-        final Material toPlace = switch (distance) {
-            case 1 -> Material.RED_STAINED_GLASS;
-            case 2 -> Material.ORANGE_STAINED_GLASS;
-            case 3 -> Material.YELLOW_STAINED_GLASS;
-            case 4 -> Material.LIME_STAINED_GLASS;
-            case 5 -> Material.LIGHT_BLUE_STAINED_GLASS;
-            case 6 -> Material.CYAN_STAINED_GLASS;
-            case 7 -> Material.BLUE_STAINED_GLASS;
-            case 8 -> Material.MAGENTA_STAINED_GLASS;
-            case 9 -> Material.PURPLE_STAINED_GLASS;
-            case 10 -> Material.PINK_STAINED_GLASS;
-            case 11 -> Material.BROWN_STAINED_GLASS;
-            case 12 -> Material.GRAY_STAINED_GLASS;
-            case 13 -> Material.WHITE_STAINED_GLASS;
-            default -> null;
-        };
-        if (toPlace != null) context.setBlockAt(x, y, z, toPlace);
-    });
-
-    // QUESTS
-
-    private final QuestData questData = new QuestData()
-            .addQuest(new Quest("give_stone_sword")
-                    .onAccept(player -> player.setGlowing(false))
-                    .onComplete(player -> player.setGlowing(true))
-                    .addGoal(new Goal<>(PlayerInteractAtEntityEvent.class, (event, eventClass) -> {
-                        ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
-                        if (hand.getType() != Material.STONE_SWORD) return false;
-                        hand.setAmount(hand.getAmount() - 1);
-                        event.getPlayer().sendMessage(Component.text("Thank you!", TextColor.color(0, 255, 100)));
-                        return true;
-                    }, player -> player.sendMessage(Component.text("Can you please give me a stone sword?", TextColor.color(100, 255, 100)))))
-            );
-    private final QuestHandler questHandler = new QuestHandler(questData, eventManager);
-
     // -- PLUGIN
 
     @Override
@@ -126,7 +75,6 @@ public class MazeGamemode extends JavaPlugin {
     @Override
     public void onEnable() {
         commands.register();
-        listenerManager.add(questHandler, questHandler.eventSet());
         reload();
     }
 
@@ -209,10 +157,6 @@ public class MazeGamemode extends JavaPlugin {
 
     // -- GET/SET
 
-    public MazeGenerator getBasicGenerator() {
-        return basicGenerator;
-    }
-
     public ItemManager getItemManager() {
         return itemManager;
     }
@@ -227,10 +171,6 @@ public class MazeGamemode extends JavaPlugin {
 
     public MazeEvents getMazeEvents() {
         return mazeEvents;
-    }
-
-    public QuestData getQuestData() {
-        return questData;
     }
 
     // -- UTIL
