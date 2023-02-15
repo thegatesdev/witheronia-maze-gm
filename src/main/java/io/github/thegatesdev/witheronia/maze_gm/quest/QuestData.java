@@ -11,7 +11,7 @@ public class QuestData {
 
     private final Map<UUID, PlayerEntry> playerQuestData = new HashMap<>();
 
-    private final Map<UUID, Set<String>> questEntities = new HashMap<>();
+    private final Map<UUID, List<String>> questEntities = new HashMap<>();
 
 
     public QuestData addQuest(Quest quest) {
@@ -38,10 +38,14 @@ public class QuestData {
     public Set<Class<? extends Event>> getQuestEvents() {
         return questEvents;
     }
-    
+
 
     public PlayerEntry getPlayer(UUID playerUUID) {
         return playerQuestData.get(playerUUID);
+    }
+
+    public PlayerEntry getOrCreatePlayer(UUID playerUUID) {
+        return playerQuestData.computeIfAbsent(playerUUID, uuid -> new PlayerEntry());
     }
 
     public void populatePlayer(UUID playerUUID, PlayerEntry playerEntry) {
