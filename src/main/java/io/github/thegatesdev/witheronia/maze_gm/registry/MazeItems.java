@@ -13,11 +13,14 @@ import io.github.thegatesdev.skiller.MetaBuilder;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Set;
 
-public class MazeItems extends ItemGroup implements ReadableOptionsHolder {
+public class MazeItems extends ItemGroup implements ReadableOptionsHolder, ListenerManager.EventListener {
     private final MappedReactors<ItemStack, String> reactors;
     private final ReadableOptions itemOptions = new ReadableOptions()
             .add("material", Readable.enumeration(Material.class))
@@ -46,9 +49,13 @@ public class MazeItems extends ItemGroup implements ReadableOptionsHolder {
         register(new CustomItem(itemId, builder));
     }
 
+    @Override
+    public <E extends Event> boolean callEvent(@NotNull final E e, final Class<E> aClass) {
+        return reactors.callEvent(e, aClass);
+    }
 
-    public void reloadEvents(ListenerManager listenerManager) {
-        listenerManager.remap(reactors, reactors.listenedEvents());
+    public Set<Class<? extends Event>> listenedEvents() {
+        return reactors.listenedEvents();
     }
 
     @Override

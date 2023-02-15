@@ -105,9 +105,10 @@ public class MazeGamemode extends JavaPlugin {
             inventory.setContents(itemManager.reloadItems(inventory.getContents()));
         }
 
-        // REMAP
+        // REMAP EVENTS
 
-        mazeItems.reloadEvents(listenerManager);
+        listenerManager.remap(mazeItems, mazeItems.listenedEvents());
+        listenerManager.remap(goalListener, questData.getQuestEvents());
 
         // FINISH
 
