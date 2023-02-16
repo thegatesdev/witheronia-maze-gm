@@ -27,12 +27,12 @@ public class GoalListener implements ListenerManager.EventListener {
             UUID playerId = player.getUniqueId();
             QuestData.PlayerEntry playerQuests = questData.getPlayer(playerId);
             if (playerQuests == null) continue;
-            for (final Quest quest : playerQuests.getActive()) {
-                final Goal<?> goal = quest.currentGoal(playerId);
+            for (final ActiveQuest<?> activeQuest : playerQuests.getActive()) {
+                final Goal<?, ?> goal = activeQuest.quest().currentGoal(playerId);
                 if (!eventClass.isAssignableFrom(goal.getEventClass())) continue;
-                if (!((Goal<E>) goal).doesComplete(event)) continue;
-                if (quest.progress(player)) {
-                    playerQuests.setFinished(quest.id());
+                if (!((Goal<E, ?>) goal).doesComplete(event)) continue;
+                if (activeQuest.progress(player)) {
+                    playerQuests.setFinished(activeQuest.quest().id());
                 }
             }
         }

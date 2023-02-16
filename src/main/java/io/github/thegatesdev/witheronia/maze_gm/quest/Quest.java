@@ -7,13 +7,13 @@ import org.bukkit.event.Event;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class Quest implements Identifiable {
+public class Quest<T> implements Identifiable {
 
     private final String id;
 
     private Set<String> requiredQuests;
 
-    private final List<Goal<?>> goals = new ArrayList<>();
+    private final List<Goal<?, T>> goals = new ArrayList<>();
     private Map<UUID, Integer> playerProgression = new HashMap<>();
 
     private Consumer<Player> completeAction, acceptAction;
@@ -25,20 +25,21 @@ public class Quest implements Identifiable {
         this.id = id;
     }
 
-    public Quest addGoals(Goal<?>... goals) {
-        for (final Goal<?> goal : goals) {
+    @SafeVarargs
+    public final Quest<T> addGoals(final Goal<?, T>... goals) {
+        for (final Goal<?, T> goal : goals) {
             this.goals.add(goal);
             this.goalEvents.add(goal.getEventClass());
         }
         return this;
     }
 
-    public Quest onAccept(final Consumer<Player> acceptAction) {
+    public Quest<T> onAccept(final Consumer<Player> acceptAction) {
         this.acceptAction = acceptAction;
         return this;
     }
 
-    public Quest onComplete(final Consumer<Player> completeAction) {
+    public Quest<T> onComplete(final Consumer<Player> completeAction) {
         this.completeAction = completeAction;
         return this;
     }
@@ -51,7 +52,7 @@ public class Quest implements Identifiable {
         return difficulty;
     }
 
-    public Quest requiresQuest(String... quests) {
+    public Quest<T> requiresQuest(String... quests) {
         if (requiredQuests == null) requiredQuests = new HashSet<>(quests.length);
         Collections.addAll(requiredQuests, quests);
         return this;
@@ -71,27 +72,27 @@ public class Quest implements Identifiable {
     }
 
 
-    public void accept(Player player) {
+    public void accept(Player player, T origin) {
         if (playerProgression.computeIfAbsent(player.getUniqueId(), uuid -> 0) == 0 && acceptAction != null) {
             acceptAction.accept(player);
-            goals.get(0).accept(player);
+            goals.get(0).accept(player, origin);
         }
     }
 
-    public Goal<?> currentGoal(UUID playerId) {
+    public Goal<?, T> currentGoal(UUID playerId) {
         final Integer progression = playerProgression.get(playerId);
         if (progression == null) return null;
         return goals.get(progression);
     }
 
-    public boolean progress(Player player) {
+    public boolean progress(Player player, T origin) {
         Integer progression = playerProgression.computeIfPresent(player.getUniqueId(), (uuid, integer) -> ++integer);
         if (progression == null) return false;
         if (progression >= goals.size()) {
             complete(player);
             return true;
         }
-        goals.get(progression).accept(player);
+        goals.get(progression).accept(player, origin);
         return false;
     }
 
