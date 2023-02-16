@@ -1,7 +1,6 @@
 package io.github.thegatesdev.witheronia.maze_gm.command.admin;
 
 import dev.jorel.commandapi.ArgumentTree;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
@@ -12,7 +11,7 @@ public class QuestCommand {
         return new LiteralArgument("add")
                 .then(new LiteralArgument("entity")
                         .then(new EntitySelectorArgument.OneEntity("quest_entity")
-                                .then(new StringArgument("quest").replaceSuggestions(ArgumentSuggestions.strings(questData.getQuestIds()))
+                                .then(new StringArgument("quest")
 
                                 )));
     }
