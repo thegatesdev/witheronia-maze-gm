@@ -16,12 +16,12 @@ import io.github.thegatesdev.witheronia.maze_gm.registry.MazeDataTypes;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.registry.MazeItems;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -72,17 +72,19 @@ public class MazeGamemode extends JavaPlugin {
     private final QuestData questData = new QuestData();
     private final GoalListener goalListener = new GoalListener(questData, eventManager);
 
-    {
-        questData.addQuest(new Quest("bring_some_blocks")
-                .addGoals(
-                        new Goal<>(PlayerInteractAtEntityEvent.class, (event) -> {
-                            ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
-                            if (item.getType() != Material.DIRT) return false;
-                            item.setAmount(item.getAmount() - 1);
-                            return true;
-                        }).onAccept(player -> player.sendMessage(Component.text("test")))
-                ));
-    }
+    private final Quest<Entity> testQuest = new Quest<Entity>("test")
+            .onAccept((player, entity) -> player.sendMessage(Component.text("Thank you for accepting the test quest!", TextColor.color(20, 100, 50))))
+            .onComplete((player, entity) -> player.sendMessage(Component.text("You have completed the test quest!", TextColor.color(20, 255, 50))))
+            .addGoals(
+                    Goal.takeItems(Material.STONE, 10, 5)
+                            .onAccept((player, entity) -> player.sendMessage(Component.text("Hello traveler! I need a bit of stone to finish this wall, can you maybe bring me 10?", TextColor.color(20, 100, 50))))
+                            .onComplete((event, entity) -> event.getPlayer().sendMessage(Component.text("I just realized I only needed 5 more, thank you!", TextColor.color(20, 255, 50))))
+                            .onFail((event, entity) -> event.getPlayer().sendMessage(Component.text("Please bring me 10 stone!", TextColor.color(200, 50, 0)))),
+                    Goal.takeItems(Material.COBBLESTONE, 5, 5)
+                            .onAccept((player, entity) -> player.sendMessage(Component.text("I think it will look better if turn the rest of the stone into cobble!", TextColor.color(20, 100, 50))))
+                            .onComplete((event, entity) -> event.getPlayer().sendMessage(Component.text("That's gonna look good!", TextColor.color(TextColor.color(20, 255, 50)))))
+                            .onFail((event, entity) -> event.getPlayer().sendMessage(Component.text("Please bring me 5 cobblestone!", TextColor.color(200, 50, 0))))
+            );
 
     // ITEM
 
