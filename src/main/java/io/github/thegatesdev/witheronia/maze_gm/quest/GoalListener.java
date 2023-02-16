@@ -20,7 +20,6 @@ public class GoalListener implements ListenerManager.EventListener {
                 .add(PlayerEvent.class, "player", PlayerEvent::getPlayer);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <E extends Event> boolean callEvent(@NotNull final E event, final Class<E> eventClass) {
         for (final Player player : playerGoalEvents.getData(eventClass, event)) {
@@ -28,14 +27,16 @@ public class GoalListener implements ListenerManager.EventListener {
             QuestData.PlayerEntry playerQuests = questData.getPlayer(playerId);
             if (playerQuests == null) continue;
             for (final ActiveQuest<?> activeQuest : playerQuests.getActive()) {
-                final Goal<?, ?> goal = activeQuest.quest().currentGoal(playerId);
-                if (!eventClass.isAssignableFrom(goal.getEventClass())) continue;
-                if (!((Goal<E, ?>) goal).doesComplete(event)) continue;
-                if (activeQuest.progress(player)) {
+                if (doesCompleteGoal(playerId, activeQuest, event, eventClass) && activeQuest.progress(player))
                     playerQuests.setFinished(activeQuest.quest().id());
-                }
             }
         }
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T, E extends Event> boolean doesCompleteGoal(UUID playerId, ActiveQuest<T> activeQuest, E event, Class<E> eventClass) {
+        final Goal<?, T> goal = activeQuest.quest().currentGoal(playerId);
+        return eventClass.isAssignableFrom(goal.getEventClass()) && ((Goal<E, T>) goal).didComplete(event, activeQuest.origin());
     }
 }

@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class Quest<T> implements Identifiable {
 
@@ -16,7 +16,7 @@ public class Quest<T> implements Identifiable {
     private final List<Goal<?, T>> goals = new ArrayList<>();
     private Map<UUID, Integer> playerProgression = new HashMap<>();
 
-    private Consumer<Player> completeAction, acceptAction;
+    private BiConsumer<Player, T> completeAction, acceptAction;
     private int difficulty = 0;
 
     private final Set<Class<? extends Event>> goalEvents = new HashSet<>();
@@ -34,12 +34,12 @@ public class Quest<T> implements Identifiable {
         return this;
     }
 
-    public Quest<T> onAccept(final Consumer<Player> acceptAction) {
+    public Quest<T> onAccept(final BiConsumer<Player, T> acceptAction) {
         this.acceptAction = acceptAction;
         return this;
     }
 
-    public Quest<T> onComplete(final Consumer<Player> completeAction) {
+    public Quest<T> onComplete(final BiConsumer<Player, T> completeAction) {
         this.completeAction = completeAction;
         return this;
     }
@@ -74,7 +74,7 @@ public class Quest<T> implements Identifiable {
 
     public void accept(Player player, T origin) {
         if (playerProgression.computeIfAbsent(player.getUniqueId(), uuid -> 0) == 0 && acceptAction != null) {
-            acceptAction.accept(player);
+            acceptAction.accept(player, origin);
             goals.get(0).accept(player, origin);
         }
     }
@@ -89,16 +89,16 @@ public class Quest<T> implements Identifiable {
         Integer progression = playerProgression.computeIfPresent(player.getUniqueId(), (uuid, integer) -> ++integer);
         if (progression == null) return false;
         if (progression >= goals.size()) {
-            complete(player);
+            complete(player, origin);
             return true;
         }
         goals.get(progression).accept(player, origin);
         return false;
     }
 
-    private void complete(Player player) {
+    private void complete(Player player, T origin) {
         playerProgression.remove(player.getUniqueId());
-        if (completeAction != null) completeAction.accept(player);
+        if (completeAction != null) completeAction.accept(player, origin);
     }
 
 
