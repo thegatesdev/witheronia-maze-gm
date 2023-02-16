@@ -1,42 +1,39 @@
 package io.github.thegatesdev.witheronia.maze_gm.quest;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 
 import java.util.*;
 
 public class QuestData {
 
-    private final Map<String, Quest> questPool = new HashMap<>();
     private final Set<Class<? extends Event>> questEvents = new HashSet<>();
 
     private final Map<UUID, PlayerEntry> playerQuestData = new HashMap<>();
 
-    private final Map<UUID, List<String>> questEntities = new HashMap<>();
+    private final Map<UUID, List<Quest<Entity>>> questEntities = new HashMap<>();
 
 
-    public QuestData addQuest(Quest quest) {
-        questPool.putIfAbsent(quest.id(), quest);
+    public Set<Class<? extends Event>> getQuestEvents() {
+        return questEvents;
+    }
+
+
+    public List<Quest<Entity>> getEntityQuests(UUID entityId) {
+        return questEntities.get(entityId);
+    }
+
+    public QuestData addEntityQuest(UUID entityId, Quest<Entity> quest) {
+        questEntities.computeIfAbsent(entityId, uuid -> new ArrayList<>()).add(quest);
         questEvents.addAll(quest.getGoalEvents());
         return this;
     }
 
-    public QuestData addQuest(Quest... quests) {
-        for (final Quest quest : quests) addQuest(quest);
-        return this;
-    }
-
-    public Quest getQuest(String id) {
-        final Quest quest = questPool.get(id);
-        if (quest == null) throw new RuntimeException("Unknown quest '%s'".formatted(id));
-        return quest;
-    }
-
-    public Set<String> getQuestIds() {
-        return questPool.keySet();
-    }
-
-    public Set<Class<? extends Event>> getQuestEvents() {
-        return questEvents;
+    public void populateEntity(UUID entityId, List<Quest<Entity>> quests) {
+        questEntities.put(entityId, quests);
+        for (final Quest<Entity> quest : quests) {
+            questEvents.addAll(quest.getGoalEvents());
+        }
     }
 
 
@@ -53,11 +50,11 @@ public class QuestData {
     }
 
 
-    public class PlayerEntry {
+    public static class PlayerEntry {
         private final Set<String> finished;
-        private final List<Quest> active;
+        private final List<ActiveQuest<?>> active;
 
-        private PlayerEntry(final Set<String> finished, final List<Quest> active) {
+        private PlayerEntry(final Set<String> finished, final List<ActiveQuest<?>> active) {
             this.finished = finished;
             this.active = active;
         }
@@ -66,17 +63,17 @@ public class QuestData {
             this(new HashSet<>(), new ArrayList<>());
         }
 
-        public void setActive(String questId) {
-            if (finished.contains(questId)) throw new RuntimeException("Cannot activate finished quest!");
-            active.add(getQuest(questId));
+        public void setActive(ActiveQuest<?> quest) {
+            if (finished.contains(quest.quest().id())) throw new RuntimeException("Cannot activate finished quest!");
+            active.add(quest);
         }
 
         public void setFinished(String questId) {
-            active.remove(getQuest(questId));
+            active.removeIf(quest -> quest.quest().id().equals(questId));
             finished.add(questId);
         }
 
-        public List<Quest> getActive() {
+        public List<ActiveQuest<?>> getActive() {
             return active;
         }
 
