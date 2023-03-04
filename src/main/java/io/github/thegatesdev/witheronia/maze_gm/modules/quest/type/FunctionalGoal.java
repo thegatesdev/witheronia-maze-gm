@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.quest;
+package io.github.thegatesdev.witheronia.maze_gm.modules.quest.type;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -10,17 +10,17 @@ import org.bukkit.inventory.ItemStack;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
-public class Goal<E extends Event, T> {
+public class FunctionalGoal<E extends Event, O> implements Goal<E, O> {
 
     private final Class<E> eventClass;
-    private final BiPredicate<E, T> doesComplete;
+    private final BiPredicate<E, O> doesComplete;
 
-    private BiConsumer<Player, T> acceptAction;
-    private BiConsumer<E, T> completeAction, failAction;
+    private BiConsumer<Player, O> acceptAction;
+    private BiConsumer<E, O> completeAction, failAction;
 
 
-    public static Goal<PlayerInteractAtEntityEvent, Entity> takeItems(Material material, int minimum, int take) {
-        return new Goal<>(PlayerInteractAtEntityEvent.class, (event, entity) -> {
+    public static FunctionalGoal<PlayerInteractAtEntityEvent, Entity> takeItems(Material material, int minimum, int take) {
+        return new FunctionalGoal<>(PlayerInteractAtEntityEvent.class, (event, entity) -> {
             if (event.getRightClicked() != entity) return false;
             final ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
             if (item.getType() != material) return false;
@@ -32,27 +32,27 @@ public class Goal<E extends Event, T> {
     }
 
 
-    public Goal(Class<E> eventClass, BiPredicate<E, T> doesComplete) {
+    public FunctionalGoal(Class<E> eventClass, BiPredicate<E, O> doesComplete) {
         this.eventClass = eventClass;
         this.doesComplete = doesComplete;
     }
 
-    public Goal<E, T> onAccept(final BiConsumer<Player, T> acceptAction) {
+    public FunctionalGoal<E, O> onAccept(final BiConsumer<Player, O> acceptAction) {
         this.acceptAction = acceptAction;
         return this;
     }
 
-    public Goal<E, T> onComplete(final BiConsumer<E, T> completeAction) {
+    public FunctionalGoal<E, O> onComplete(final BiConsumer<E, O> completeAction) {
         this.completeAction = completeAction;
         return this;
     }
 
-    public Goal<E, T> onFail(final BiConsumer<E, T> failAction) {
+    public FunctionalGoal<E, O> onFail(final BiConsumer<E, O> failAction) {
         this.failAction = failAction;
         return this;
     }
 
-    public <B extends T> boolean didComplete(E event, B origin) {
+    public boolean completesGoal(E event, O origin) {
         if (doesComplete.test(event, origin)) {
             completeAction.accept(event, origin);
             return true;
@@ -61,11 +61,11 @@ public class Goal<E extends Event, T> {
         return false;
     }
 
-    public void accept(Player player, T origin) {
+    public void accept(Player player, O origin) {
         if (acceptAction != null) acceptAction.accept(player, origin);
     }
 
-    public Class<E> getEventClass() {
+    public Class<E> eventClass() {
         return eventClass;
     }
 }

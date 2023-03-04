@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.command.admin;
+package io.github.thegatesdev.witheronia.maze_gm.modules.command.admin;
 
 import dev.jorel.commandapi.ArgumentTree;
 import dev.jorel.commandapi.CommandAPI;
@@ -6,9 +6,9 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.LongArgument;
-import io.github.thegatesdev.threshold.WorldModification;
-import io.github.thegatesdev.witheronia.maze_gm.generation.maze.MazeGenerator;
-import io.github.thegatesdev.witheronia.maze_gm.generation.maze.Vector3;
+import io.github.thegatesdev.threshold.world.WorldModification;
+import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.MazeGenerator;
+import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.Vector3;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 
@@ -37,7 +37,7 @@ public class GenerateMazeCommand {
                             if (!generator.isGenerated())
                                 throw CommandAPI.failWithString("No maze generated yet!");
                             final Location loc = (Location) objects[0];
-                            final WorldModification modification = new WorldModification(loc.getWorld());
+                            final WorldModification modification = WorldModification.sync(loc.getWorld());
                             generator.place(modification, loc.add(1, 0, 1));
                             final int placedBlocks = modification.update();
                             sender.sendMessage("Placed %s blocks.".formatted(placedBlocks));

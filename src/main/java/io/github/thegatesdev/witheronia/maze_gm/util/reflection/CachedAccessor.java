@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.reflection;
+package io.github.thegatesdev.witheronia.maze_gm.util.reflection;
 
 import java.lang.reflect.Method;
 import java.util.Map;

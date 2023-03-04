@@ -1,7 +1,7 @@
-package io.github.thegatesdev.witheronia.maze_gm.generation.maze;
+package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze;
 
 import io.github.thegatesdev.maze_generator_lib.Maze;
-import io.github.thegatesdev.threshold.WorldModification;
+import io.github.thegatesdev.threshold.world.WorldModification;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -9,7 +9,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 
 public class MazeGenerator {
-
     private boolean isGenerated = false;
     private Set<FeatureGenerator> generators;
     private BukkitRunnable runnable;
@@ -32,8 +31,11 @@ public class MazeGenerator {
                     final boolean filled = context.isWall(x, z);
                     for (int y = 0, materialsLength = size.y; y < materialsLength; y++) {
                         generator.onBlockGenerate(random, context, x, y, z, filled);
+                        context.before.y = y;
                     }
+                    context.before.z = z;
                 }
+                context.before.x = x;
             }
             generator.onGenerationEnd(random, context);
         }
@@ -54,7 +56,7 @@ public class MazeGenerator {
                 for (int y = 0; y < generatedSize.y; y++) {
                     final Material material = generated[x][z][y];
                     if (material == null) continue;
-                    worldModification.setBlock(x + xOff, y + yOff, z + zOff, material);
+                    worldModification.set(x + xOff, y + yOff, z + zOff, material);
                 }
             }
         }
@@ -66,7 +68,7 @@ public class MazeGenerator {
 
     public MazeGenerator addFeatureGenerators(FeatureGenerator... input) {
         if (generators == null) generators = new HashSet<>(input.length);
-        generators.addAll(List.of(input));
+        Collections.addAll(generators, input);
         return this;
     }
 
@@ -82,6 +84,11 @@ public class MazeGenerator {
         private final int wallThickness;
         private final int sectionSize;
 
+        private final Vector3 before = new Vector3(0, 0, 0);
+
+        public Vector3 before() {
+            return before;
+        }
 
         private Context(BitSet[] contents, Material[][][] blocks, Vector3 mazeSize, int corridorWidth, int wallThickness) {
             this.contents = contents;
@@ -103,6 +110,10 @@ public class MazeGenerator {
         public Material getBlockAt(int x, int y, int z) {
             if (!inMaze(x, y, z)) return null;
             return blocks[x][z][y];
+        }
+
+        public Material getBlockAt(Vector3 vector3) {
+            return getBlockAt(vector3.x, vector3.y, vector3.z);
         }
 
         public boolean isWall(int x, int z) {

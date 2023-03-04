@@ -23,8 +23,8 @@ public class DisplayUtil {
 
     public static Component displayList(Component title, Component body) {
         return Component.join(JoinConfiguration.newlines(),
-                Component.text("------- ", LIST_BORDER_STYLE).append(title.style(TEXT_STYLE)),
-                body,
+                Component.text("------- ", LIST_BORDER_STYLE).append(title.style(EMPHASIS_STYLE)),
+                body.applyFallbackStyle(TEXT_STYLE),
                 Component.text("-------", LIST_BORDER_STYLE)
         );
     }
@@ -33,7 +33,7 @@ public class DisplayUtil {
         final Map<String, ReadableOptions.Entry<?>> entries = readableData.getEntries();
         final List<Component> out = new ArrayList<>(entries.size());
         entries.forEach((s, entry) -> {
-            final String id = entry.getDataType().id();
+            final String id = entry.dataType().id();
             out.add(Component.text()
                     .append(Component.text(s + ": ", VAR_STYLE))
                     .append(id == null ? Component.text("unknown ", FAIL_STYLE) : Component.text(id + " ", VAR_VAL_STYLE))

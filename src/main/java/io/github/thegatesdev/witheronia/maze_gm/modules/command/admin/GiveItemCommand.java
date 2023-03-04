@@ -1,11 +1,11 @@
-package io.github.thegatesdev.witheronia.maze_gm.command.admin;
+package io.github.thegatesdev.witheronia.maze_gm.modules.command.admin;
 
 import dev.jorel.commandapi.ArgumentTree;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import io.github.thegatesdev.skiller.ItemGroup;
+import io.github.thegatesdev.stacker.ItemGroup;
 import org.bukkit.inventory.ItemStack;
 
 public class GiveItemCommand {
