@@ -27,7 +27,7 @@ public final class ActiveQuest<O> implements Identifiable {
     public <E extends Event> void goalEvent(E event, Class<E> eventClass) {
         if (finished) return;
         final Goal<E, O> goal = (Goal<E, O>) currentGoal();
-        if (!eventClass.isAssignableFrom(goal.currentEvent())) return;
+        if (!eventClass.isAssignableFrom(goal.eventClass())) return;
         if (goal.completesGoal(event, origin)) progress();
     }
 

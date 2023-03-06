@@ -5,6 +5,13 @@ import org.bukkit.event.Event;
 
 public abstract class Goal<E extends Event, O> {
 
+    private final Class<E> eventClass;
+
+    protected Goal(final Class<E> eventClass) {
+        this.eventClass = eventClass;
+    }
+
+
     public boolean completesGoal(E event, O origin) {
         if (doesComplete(event, origin)) {
             onComplete(event, origin);
@@ -14,10 +21,12 @@ public abstract class Goal<E extends Event, O> {
         return false;
     }
 
+    public Class<E> eventClass() {
+        return eventClass;
+    }
+
 
     protected abstract boolean doesComplete(E event, O origin);
-
-    abstract Class<E> currentEvent();
 
     public void onAccept(Player player, O origin) {
     }

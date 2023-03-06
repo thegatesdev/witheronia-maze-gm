@@ -29,7 +29,7 @@ public class FunctionalQuest<O> implements Quest<O> {
     public final FunctionalQuest<O> addGoals(final Goal<?, O>... goals) {
         for (final Goal<?, O> goal : goals) {
             this.goals.add(goal);
-            this.goalEvents.add(goal.currentEvent());
+            this.goalEvents.add(goal.eventClass());
         }
         return this;
     }
