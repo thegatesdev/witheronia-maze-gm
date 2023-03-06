@@ -15,7 +15,7 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
     private final CommandTree baseCommand = new CommandTree("witheronia").withAliases("wt");
 
     public MazeCommandModule(final MazeGamemode plugin) {
-        super("maze_commands", plugin);
+        super("commands", plugin);
     }
 
     private void createCommands() {

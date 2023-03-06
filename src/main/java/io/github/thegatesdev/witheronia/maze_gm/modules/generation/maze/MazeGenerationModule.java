@@ -35,17 +35,4 @@ public class MazeGenerationModule extends PluginModule<MazeGamemode> {
     public MazeGenerator basicGenerator() {
         return basicGenerator;
     }
-
-    // -- MODULE
-
-
-    @Override
-    protected void onLoad() {
-
-    }
-
-    @Override
-    protected void onEnable() {
-
-    }
 }
