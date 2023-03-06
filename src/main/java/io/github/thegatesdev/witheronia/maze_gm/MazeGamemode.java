@@ -9,6 +9,7 @@ import io.github.thegatesdev.witheronia.maze_gm.data.MazeReactors;
 import io.github.thegatesdev.witheronia.maze_gm.modules.command.MazeCommandModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.MazeGenerationModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -37,7 +38,8 @@ public class MazeGamemode extends JavaPlugin {
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<MazeGamemode>(getLogger()).add(
             new MazeItemModule(this),
             new MazeGenerationModule(this),
-            new MazeCommandModule(this)
+            new MazeCommandModule(this),
+            new MazeQuestModule(this)
     );
 
     // -- INIT
