@@ -1,29 +1,30 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest.type;
 
-import org.bukkit.Material;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.inventory.ItemStack;
 
-public interface Goal<E extends Event, O> {
+public abstract class Goal<E extends Event, O> {
 
-    static FunctionalGoal<PlayerInteractAtEntityEvent, Entity> takeItems(Material material, int minimum, int take) {
-        return new FunctionalGoal<>(PlayerInteractAtEntityEvent.class, (event, entity) -> {
-            if (event.getRightClicked() != entity) return false;
-            final ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
-            if (item.getType() != material) return false;
-            final int amount = item.getAmount();
-            if (amount < minimum) return false;
-            item.setAmount(amount - take);
+    public boolean completesGoal(E event, O origin) {
+        if (doesComplete(event, origin)) {
+            onComplete(event, origin);
             return true;
-        });
+        }
+        onFail(event, origin);
+        return false;
     }
 
-    boolean completesGoal(E event, O origin);
 
-    void accept(Player player, O origin);
+    protected abstract boolean doesComplete(E event, O origin);
 
-    Class<E> eventClass();
+    abstract Class<E> currentEvent();
+
+    public void onAccept(Player player, O origin) {
+    }
+
+    protected void onFail(E event, O origin) {
+    }
+
+    protected void onComplete(E event, O origin) {
+    }
 }

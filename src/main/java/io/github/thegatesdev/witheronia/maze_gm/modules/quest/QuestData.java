@@ -1,7 +1,6 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest;
 
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.type.ActiveQuest;
-import io.github.thegatesdev.witheronia.maze_gm.modules.quest.type.FunctionalQuest;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.type.Quest;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.type.QuestHolder;
 import org.bukkit.entity.Entity;
@@ -27,7 +26,7 @@ public class QuestData {
         return questEntities.get(entityId);
     }
 
-    public QuestData add(Entity entity, FunctionalQuest<Entity> quest) {
+    public QuestData add(Entity entity, Quest<Entity> quest) {
         if (quest == null) throw new RuntimeException("This quest does not exist!");
         questEntities.computeIfAbsent(entity.getUniqueId(), uuid -> new QuestHolder<>(entity)).addQuest(quest);
         questEvents.addAll(quest.goalEvents());

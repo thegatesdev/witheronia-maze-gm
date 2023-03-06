@@ -26,8 +26,8 @@ public final class ActiveQuest<O> implements Identifiable {
     @SuppressWarnings("unchecked")
     public <E extends Event> void goalEvent(E event, Class<E> eventClass) {
         if (finished) return;
-        final FunctionalGoal<E, O> goal = (FunctionalGoal<E, O>) currentGoal();
-        if (!eventClass.isAssignableFrom(goal.eventClass())) return;
+        final Goal<E, O> goal = (Goal<E, O>) currentGoal();
+        if (!eventClass.isAssignableFrom(goal.currentEvent())) return;
         if (goal.completesGoal(event, origin)) progress();
     }
 
@@ -36,7 +36,7 @@ public final class ActiveQuest<O> implements Identifiable {
         if (++progression >= quest.goals()) {
             finished = true;
             quest.finish(player, origin);
-        } else currentGoal().accept(player, origin);
+        } else currentGoal().onAccept(player, origin);
     }
 
     private Goal<?, O> currentGoal() {
