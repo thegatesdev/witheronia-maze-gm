@@ -5,6 +5,7 @@ import io.github.thegatesdev.eventador.event.EventListener;
 import io.github.thegatesdev.eventador.event.util.EventData;
 import io.github.thegatesdev.eventador.event.util.MappedReactors;
 import io.github.thegatesdev.maple.data.DataMap;
+import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.mapletree.data.Readable;
 import io.github.thegatesdev.mapletree.data.ReadableOptions;
 import io.github.thegatesdev.stacker.CustomItem;
@@ -13,6 +14,7 @@ import io.github.thegatesdev.stacker.MetaBuilder;
 import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import io.github.thegatesdev.witheronia.maze_gm.data.MazeDataTypes;
+import io.github.thegatesdev.witheronia.maze_gm.util.DataFileLoader;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -24,8 +26,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
-public class MazeItemModule extends PluginModule<MazeGamemode> implements EventListener {
+public class MazeItemModule extends PluginModule<MazeGamemode> implements EventListener, DataFileLoader {
+
+    private final Logger logger;
 
     private final ReadableOptions itemOptions = new ReadableOptions()
             .add("material", Readable.enumeration(Material.class))
@@ -40,10 +45,11 @@ public class MazeItemModule extends PluginModule<MazeGamemode> implements EventL
     public MazeItemModule(final MazeGamemode plugin) {
         super("items", plugin);
         itemReactors = new MappedReactors<>(plugin.eventManager(), itemEvents, itemGroup::itemId);
+        plugin.addDataFileLoaders(this);
         plugin.listenerManager().add(this);
         plugin.stacker().itemManager().addGroup(itemGroup);
+        this.logger = plugin.getLogger();
     }
-
 
     {
         itemEvents = new EventData<ItemStack>(plugin.eventManager()).add(PlayerInteractEvent.class, "used_stack", PlayerInteractEvent::getItem)
@@ -64,11 +70,33 @@ public class MazeItemModule extends PluginModule<MazeGamemode> implements EventL
         return itemGroup;
     }
 
+
+    // -- MODULE
+
+    @Override
+    public void onDataFileLoad(final DataMap data) {
+        data.ifList("maze_items", elements -> elements.iterator(DataMap.class).forEachRemaining(itemData -> {
+            CustomItem item;
+            try {
+                item = loadItem(itemData);
+            } catch (ElementException e) {
+                logger.warning("An item failed to load;");
+                logger.warning(e.getMessage());
+                return;
+            }
+            itemGroup.register(item);
+        }));
+    }
+
+    @Override
+    protected void onUnload() {
+        itemGroup.clear();
+    }
+
     // -- FUNCTIONALITY
 
     private CustomItem loadItem(DataMap data) {
         final DataMap options = itemOptions.read(data);
-
         final String itemId = options.getString("id");
         final MetaBuilder builder = new MetaBuilder(options.get("material", Material.class));
         options.ifPrimitive("name", primitive -> builder.name(primitive.valueUnsafe()));
@@ -77,8 +105,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> implements EventL
             for (final ReactorFactory<?>.ReadReactor reactor : primitive.<List<ReactorFactory<?>.ReadReactor>>valueUnsafe())
                 itemReactors.map(itemId, reactor.eventClass(), reactor);
         });
-
-        return itemGroup.register(new CustomItem(itemId, builder));
+        return new CustomItem(itemId, builder);
     }
 
     @Override
@@ -90,29 +117,5 @@ public class MazeItemModule extends PluginModule<MazeGamemode> implements EventL
     @Override
     public Set<Class<? extends Event>> eventSet() {
         return itemReactors.eventSet();
-    }
-
-
-    // -- MODULE
-
-    @Override
-    protected void onLoad() {
-
-    }
-
-    @Override
-    protected void onUnload() {
-        itemReactors.clear();
-        itemGroup.clear();
-    }
-
-    @Override
-    protected void onEnable() {
-
-    }
-
-    @Override
-    protected void onDisable() {
-
     }
 }
