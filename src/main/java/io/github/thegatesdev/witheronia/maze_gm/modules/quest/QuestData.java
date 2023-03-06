@@ -18,23 +18,23 @@ public class QuestData {
     private final Map<UUID, QuestHolder<Entity>> questEntities = new HashMap<>();
 
 
-    public Set<Class<? extends Event>> getQuestEvents() {
+    public Set<Class<? extends Event>> questEvents() {
         return questEvents;
     }
 
 
-    public QuestHolder<Entity> getEntity(UUID entityId) {
+    public QuestHolder<Entity> get(UUID entityId) {
         return questEntities.get(entityId);
     }
 
-    public QuestData addEntityQuest(Entity entity, FunctionalQuest<Entity> quest) {
+    public QuestData add(Entity entity, FunctionalQuest<Entity> quest) {
         if (quest == null) throw new RuntimeException("This quest does not exist!");
         questEntities.computeIfAbsent(entity.getUniqueId(), uuid -> new QuestHolder<>(entity)).addQuest(quest);
         questEvents.addAll(quest.goalEvents());
         return this;
     }
 
-    public void populateEntity(UUID entityId, QuestHolder<Entity> questHolder) {
+    public void populate(UUID entityId, QuestHolder<Entity> questHolder) {
         questEntities.put(entityId, questHolder);
         for (final Quest<Entity> quest : questHolder.quests()) questEvents.addAll(quest.goalEvents());
     }

@@ -1,6 +1,5 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest;
 
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import io.github.thegatesdev.eventador.event.EventListener;
 import io.github.thegatesdev.eventador.event.util.EventData;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.type.ActiveQuest;
@@ -39,9 +38,8 @@ public class QuestListener implements EventListener {
         return false;
     }
 
-    private <O> void handleEventQuests(Player player, O origin, QuestHolder<O> holder) {
-        ChestGui gui = questGui.create(questData.getOrCreatePlayer(player.getUniqueId()), origin, holder.quests(), "Quests");
-        gui.show(player);
+    private <O> void handleEventQuests(Player player, O origin, QuestHolder<O> holder, String name) {
+        questGui.create(questData.getOrCreatePlayer(player.getUniqueId()), origin, holder.quests(), name).show(player);
     }
 
     @Override
@@ -50,8 +48,9 @@ public class QuestListener implements EventListener {
 
         if (event instanceof PlayerInteractAtEntityEvent playerInteractAtEntityEvent) {
             Entity clicked = playerInteractAtEntityEvent.getRightClicked();
-            QuestHolder<Entity> holder = questData.getEntity(clicked.getUniqueId());
-            if (holder != null) handleEventQuests(playerInteractAtEntityEvent.getPlayer(), clicked, holder);
+            QuestHolder<Entity> holder = questData.get(clicked.getUniqueId());
+            if (holder != null)
+                handleEventQuests(playerInteractAtEntityEvent.getPlayer(), clicked, holder, holder.origin().getName() + "'s quests");
         }
 
         return false;
@@ -59,6 +58,6 @@ public class QuestListener implements EventListener {
 
     @Override
     public Set<Class<? extends Event>> eventSet() {
-        return null;
+        return questData.questEvents();
     }
 }
