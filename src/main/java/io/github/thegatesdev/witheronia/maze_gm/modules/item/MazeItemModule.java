@@ -1,9 +1,9 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.item;
 
 import io.github.thegatesdev.actionable.factory.ReactorFactory;
-import io.github.thegatesdev.eventador.event.EventListener;
-import io.github.thegatesdev.eventador.event.util.EventData;
-import io.github.thegatesdev.eventador.event.util.MappedReactors;
+import io.github.thegatesdev.eventador.EventData;
+import io.github.thegatesdev.eventador.EventListener;
+import io.github.thegatesdev.eventador.MappedReactors;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.mapletree.data.Readable;
@@ -45,23 +45,23 @@ public class MazeItemModule extends PluginModule<MazeGamemode> implements EventL
     public MazeItemModule(final MazeGamemode plugin) {
         super("items", plugin);
         itemReactors = new MappedReactors<>(plugin.eventManager(), itemEvents, itemGroup::itemId);
-        plugin.addDataFileLoaders(this);
+        plugin.onDataFileLoad(this);
         plugin.listenerManager().add(this);
         plugin.stacker().itemManager().addGroup(itemGroup);
         this.logger = plugin.getLogger();
     }
 
     {
-        itemEvents = new EventData<ItemStack>(plugin.eventManager()).add(PlayerInteractEvent.class, "used_stack", PlayerInteractEvent::getItem)
-                .add(PlayerDropItemEvent.class, "dropped_stack", event -> event.getItemDrop().getItemStack())
-                .add(EntityDropItemEvent.class, "dropped_stack", event -> event.getItemDrop().getItemStack())
-                .add(EntityPickupItemEvent.class, "picked_up_stack", event -> event.getItem().getItemStack())
-                .add(PlayerItemBreakEvent.class, "broken_stack", PlayerItemBreakEvent::getBrokenItem)
-                .add(PlayerItemConsumeEvent.class, "consumed_stack", PlayerItemConsumeEvent::getItem)
-                .add(PlayerItemHeldEvent.class, "new_stack", event -> event.getPlayer().getInventory().getItem(event.getNewSlot()))
-                .add(PlayerItemHeldEvent.class, "old_stack", event -> event.getPlayer().getInventory().getItem(event.getPreviousSlot()))
-                .add(PlayerSwapHandItemsEvent.class, "main_hand_stack", PlayerSwapHandItemsEvent::getMainHandItem)
-                .add(PlayerSwapHandItemsEvent.class, "off_hand_stack", PlayerSwapHandItemsEvent::getOffHandItem);
+        itemEvents = new EventData<ItemStack>(plugin.eventManager()).add("used_stack", PlayerInteractEvent.class, PlayerInteractEvent::getItem)
+                .add("dropped_stack", PlayerDropItemEvent.class, event -> event.getItemDrop().getItemStack())
+                .add("dropped_stack", EntityDropItemEvent.class, event -> event.getItemDrop().getItemStack())
+                .add("picked_up_stack", EntityPickupItemEvent.class, event -> event.getItem().getItemStack())
+                .add("broken_stack", PlayerItemBreakEvent.class, PlayerItemBreakEvent::getBrokenItem)
+                .add("consumed_stack", PlayerItemConsumeEvent.class, PlayerItemConsumeEvent::getItem)
+                .add("new_stack", PlayerItemHeldEvent.class, event -> event.getPlayer().getInventory().getItem(event.getNewSlot()))
+                .add("old_stack", PlayerItemHeldEvent.class, event -> event.getPlayer().getInventory().getItem(event.getPreviousSlot()))
+                .add("main_hand_stack", PlayerSwapHandItemsEvent.class, PlayerSwapHandItemsEvent::getMainHandItem)
+                .add("off_hand_stack", PlayerSwapHandItemsEvent.class, PlayerSwapHandItemsEvent::getOffHandItem);
     }
 
     // -- GET / SET
@@ -109,9 +109,9 @@ public class MazeItemModule extends PluginModule<MazeGamemode> implements EventL
     }
 
     @Override
-    public <E extends Event> boolean onEvent(@NotNull final E e, final Class<E> eventClass) {
+    public <E extends Event> boolean callEvent(@NotNull final E e, final Class<E> eventClass) {
         if (!isEnabled) return false;
-        return itemReactors.onEvent(e, eventClass);
+        return itemReactors.callEvent(e, eventClass);
     }
 
     @Override

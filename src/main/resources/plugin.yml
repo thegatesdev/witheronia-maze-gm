@@ -4,6 +4,7 @@ author: TheGatesDev
 api-version: 1.19
 main: io.github.thegatesdev.witheronia.maze_gm.MazeGamemode
 depend:
+  - Threshold
   - Stacker
   - Actionable
   - Eventador

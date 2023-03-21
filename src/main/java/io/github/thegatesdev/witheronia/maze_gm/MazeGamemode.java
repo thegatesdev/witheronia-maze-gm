@@ -1,8 +1,8 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
+import io.github.thegatesdev.eventador.EventManager;
 import io.github.thegatesdev.eventador.Eventador;
-import io.github.thegatesdev.eventador.event.EventManager;
-import io.github.thegatesdev.eventador.event.ListenerManager;
+import io.github.thegatesdev.eventador.ListenerManager;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.data.DataPrimitive;
@@ -16,12 +16,8 @@ import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import io.github.thegatesdev.witheronia.maze_gm.util.DataFileLoader;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
-import org.reflections.util.ConfigurationBuilder;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -29,7 +25,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class MazeGamemode extends JavaPlugin {
@@ -47,7 +46,7 @@ public class MazeGamemode extends JavaPlugin {
 
     // GLOBAL
 
-    private final ListenerManager listenerManager = new ListenerManager(this);
+    private final ListenerManager listenerManager = new ListenerManager(eventManager(), this);
     private final MazeReactors mazeReactors = new MazeReactors(eventManager());
 
     // -- CONNECTIONS
@@ -65,16 +64,16 @@ public class MazeGamemode extends JavaPlugin {
 
     // -- INIT
 
-    {
-        final Set<Class<? extends Event>> eventClasses = new Reflections(new ConfigurationBuilder().forPackage("io.papermc.paper.event").setScanners(Scanners.SubTypes)).getSubTypesOf(Event.class);
-        logger.info("Found %s event classes.".formatted(eventClasses.size()));
-        Eventador.EVENT_MANAGER.addEventClasses(eventClasses);
+    static {
+        Eventador.EVENT_MANAGER.addEventsFrom("io.papermc.paper.event");
     }
 
     // -- PLUGIN
 
     public void reload() {
         try {
+            listenerManager.handleEvents(false);
+
             reloadConfigData();
 
             modules.reloadAll();
@@ -84,6 +83,8 @@ public class MazeGamemode extends JavaPlugin {
             modules.enableAll();
 
             listenerManager.updateAll();
+
+            listenerManager.handleEvents(true);
 
         } catch (Exception e) {
             logger.warning("Something went wrong while reloading!");
@@ -135,7 +136,7 @@ public class MazeGamemode extends JavaPlugin {
         configurationData = element.asMap();
     }
 
-    public void addDataFileLoaders(DataFileLoader... loaders) {
+    public void onDataFileLoad(DataFileLoader... loaders) {
         Collections.addAll(dataFileLoaders, loaders);
     }
 

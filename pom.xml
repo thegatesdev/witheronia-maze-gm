@@ -37,12 +37,14 @@
                 <configuration>
                     <relocations>
                         <relocation>
-                            <pattern>org.reflections</pattern>
-                            <shadedPattern>io.github.thegatesdev.witheronia.shade.reflections</shadedPattern>
+                            <pattern>com.github.stefvanschie.inventoryframework</pattern>
+                            <shadedPattern>io.github.thegatesdev.witheronia.maze_gm.shade.inventoryframework
+                            </shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.github.stefvanschie.inventoryframework</pattern>
-                            <shadedPattern>io.github.thegatesdev.witheronia.shade.inventoryframework</shadedPattern>
+                            <pattern>io.github.thegatesdev.maze_generator_lib</pattern>
+                            <shadedPattern>io.github.thegatesdev.witheronia.maze_gm.shade.maze_generator_lib
+                            </shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -53,9 +55,28 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.github.stefvanschie.inventoryframework:IF</include>
+                                    <include>io.github.thegatesdev:maze-generator</include>
+                                </includes>
+                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>io.github.thegatesdev:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.reflections:reflections</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.javassist:javassist</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.MF</exclude>
                                     </excludes>
@@ -129,16 +150,17 @@
     <dependencies>
         <!-- Shaded -->
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.stefvanschie.inventoryframework</groupId>
             <artifactId>IF</artifactId>
             <version>0.10.8</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.thegatesdev</groupId>
+            <artifactId>maze-generator</artifactId>
+            <version>1.1</version>
+        </dependency>
         <!-- End Shaded -->
+        <!-- Plugin -->
         <dependency>
             <groupId>io.github.thegatesdev</groupId>
             <artifactId>threshold</artifactId>
@@ -148,27 +170,28 @@
         <dependency>
             <groupId>io.github.thegatesdev</groupId>
             <artifactId>actionable</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.thegatesdev</groupId>
             <artifactId>eventador</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>io.github.thegatesdev</groupId>
-            <artifactId>maze-generator</artifactId>
-            <version>1.1</version>
-        </dependency>
-
         <dependency>
             <groupId>io.github.thegatesdev</groupId>
             <artifactId>stacker</artifactId>
             <version>0.9.2</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>dev.jorel</groupId>
+            <artifactId>commandapi-core</artifactId>
+            <version>8.8.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- End Plugin -->
 
         <dependency>
             <groupId>io.papermc.paper</groupId>
@@ -181,12 +204,6 @@
             <artifactId>spigot</artifactId>
             <version>1.19.3-R0.1-SNAPSHOT</version>
             <classifier>remapped-mojang</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>dev.jorel</groupId>
-            <artifactId>commandapi-core</artifactId>
-            <version>8.7.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

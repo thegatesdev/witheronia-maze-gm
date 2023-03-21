@@ -2,8 +2,8 @@ package io.github.thegatesdev.witheronia.maze_gm.data;
 
 import io.github.thegatesdev.actionable.ReactorFactories;
 import io.github.thegatesdev.actionable.util.twin.Twin;
-import io.github.thegatesdev.eventador.event.EventManager;
-import io.github.thegatesdev.eventador.event.util.EventData;
+import io.github.thegatesdev.eventador.EventData;
+import io.github.thegatesdev.eventador.EventManager;
 import io.github.thegatesdev.mapletree.data.Readable;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickLocation;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickType;
@@ -21,7 +21,7 @@ public class MazeReactors extends ReactorFactories {
     }
 
     public void load() {
-        addPerformers(new EventData<Entity>(eventManager).add(EntityEvent.class, "entity", EntityEvent::getEntity), ENTITY_ACTION, ENTITY_CONDITION);
+        addPerformers(new EventData<Entity>(eventManager).add("entity", EntityEvent.class, EntityEvent::getEntity), ENTITY_ACTION, ENTITY_CONDITION);
 
         doWithFactories(EntityDamageEvent.class, eventFactory -> eventFactory.addPerformer("combined", e -> e instanceof EntityDamageByEntityEvent, e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()), ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
         doWithFactories(PlayerInteractEvent.class, eventFactory -> {
