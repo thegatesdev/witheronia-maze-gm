@@ -7,26 +7,23 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.data.PlayerQuestData;
-import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.quest.Quest;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.Quest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 
-import java.util.Map;
-
-public class TestQuestCommand {
+public class QuestCommand {
 
     public static ArgumentTree activateQuestArg(MazeQuestModule questModule) {
-        Map<String, Quest<?>> testQuests = questModule.testQuests();
         return new LiteralArgument("activate")
-                .then(new StringArgument("questId").replaceSuggestions(ArgumentSuggestions.strings(info -> testQuests.keySet().toArray(String[]::new)))
+                .then(new StringArgument("questId").replaceSuggestions(ArgumentSuggestions.strings(questModule.questData().questKeys()))
                         .executesPlayer((sender, args) -> {
                             final String questId = ((String) args[0]);
-                            final Quest<?> quest = testQuests.get(questId);
-                            if (quest == null) throw CommandAPI.failWithString("Unknown test quest!");
-                            PlayerQuestData player = questModule.questData().getOrCreatePlayer(sender.getUniqueId());
-                            if (player.shouldActivate(quest)) {
-                                player.activate(Quest.activate(quest, sender));
-                                sender.sendMessage(Component.text("Activated quest '%s'".formatted(quest.id()), TextColor.color(40, 255, 100)));
+                            final Quest quest = questModule.questData().getQuest(questId);
+                            if (quest == null) throw CommandAPI.failWithString("Unknown quest!");
+                            final PlayerQuestData playerData = questModule.questData().getOrCreatePlayer(sender.getUniqueId());
+                            if (playerData.canActivate(quest)) {
+                                sender.sendMessage(Component.text("Activating quest '%s'".formatted(quest.id()), TextColor.color(40, 255, 100)));
+                                playerData.activate(quest, sender);
                             } else
                                 sender.sendMessage(Component.text("Could not activate quest '%s'".formatted(quest.id()), TextColor.color(255, 50, 100)));
                         })

@@ -9,7 +9,7 @@ import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import io.github.thegatesdev.witheronia.maze_gm.modules.command.admin.GenerateMazeCommand;
 import io.github.thegatesdev.witheronia.maze_gm.modules.command.admin.GiveItemCommand;
 import io.github.thegatesdev.witheronia.maze_gm.modules.command.admin.OptionsCommand;
-import io.github.thegatesdev.witheronia.maze_gm.modules.command.admin.TestQuestCommand;
+import io.github.thegatesdev.witheronia.maze_gm.modules.command.admin.QuestCommand;
 import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.MazeGenerationModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.MazeGenerator;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
@@ -35,7 +35,7 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
         add(OptionsCommand.dataTypeOptionsArg());
         add(OptionsCommand.factoryOptionsArg());
         add(OptionsCommand.eventOptionsArg(plugin.mazeReactors()));
-        add(new LiteralArgument("quest").then(TestQuestCommand.activateQuestArg(plugin.modules().getStatic(MazeQuestModule.class))));
+        add(new LiteralArgument("quest").then(QuestCommand.activateQuestArg(plugin.modules().getStatic(MazeQuestModule.class))));
     }
 
     private void add(ArgumentTree args) {
