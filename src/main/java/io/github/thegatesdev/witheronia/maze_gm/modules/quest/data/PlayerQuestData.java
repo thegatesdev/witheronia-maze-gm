@@ -9,19 +9,13 @@ import java.util.*;
 public class PlayerQuestData {
 
     private final UUID playerId;
-    private final List<ActiveQuest> activeQuests;
-    private final Set<String> activeIds;
-    private final Set<String> finished;
+    private final List<ActiveQuest> activeQuests = new ArrayList<>();
+    private final Set<String> finished = new HashSet<>();
 
-    public PlayerQuestData(final UUID id, final List<ActiveQuest> quests, final Set<String> activeIds, final Set<String> finished) {
-        playerId = id;
-        activeQuests = quests;
-        this.activeIds = activeIds;
-        this.finished = finished;
-    }
+    private final Set<String> activeIds = new HashSet<>();
 
     public PlayerQuestData(final UUID id) {
-        this(id, new ArrayList<>(), new HashSet<>(), new HashSet<>());
+        playerId = id;
     }
 
     public final <O> void activate(Quest quest, Player player) {
