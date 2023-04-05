@@ -62,12 +62,6 @@ public class MazeGamemode extends JavaPlugin {
             new MazeQuestModule(this)
     );
 
-    // -- INIT
-
-    static {
-        Eventador.EVENT_MANAGER.addEventsFrom("io.papermc.paper.event");
-    }
-
     // -- PLUGIN
 
     public void reload() {
