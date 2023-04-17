@@ -1,5 +1,6 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs;
 
+import io.github.thegatesdev.eventador.core.EventType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
@@ -21,9 +22,9 @@ public class ActiveQuest {
         quest.onActivate(player);
     }
 
-    public <E extends Event> boolean questEvent(Class<E> eventClass, E event) {
+    public <E extends Event> boolean questEvent(E event, EventType<E> eventType) {
         @SuppressWarnings("unchecked") final ActiveGoal<E> goal = (ActiveGoal<E>) currentGoal();
-        if (goal == null || !goal.listenedEvent().isAssignableFrom(eventClass)) return false;
+        if (goal == null || !eventType.appliesTo(goal.listenedEvent())) return false;
         if (goal.doesProgress(event)) {
             if (goal.isFinished()) {
                 goal.onFinish(event);

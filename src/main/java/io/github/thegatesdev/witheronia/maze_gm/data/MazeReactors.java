@@ -1,13 +1,11 @@
 package io.github.thegatesdev.witheronia.maze_gm.data;
 
-import io.github.thegatesdev.actionable.ReactorFactories;
+import io.github.thegatesdev.actionable.EventFactories;
 import io.github.thegatesdev.actionable.util.twin.Twin;
-import io.github.thegatesdev.eventador.EventData;
-import io.github.thegatesdev.eventador.EventManager;
+import io.github.thegatesdev.eventador.core.EventTypes;
 import io.github.thegatesdev.mapletree.data.Readable;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickLocation;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickType;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityEvent;
@@ -15,16 +13,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import static io.github.thegatesdev.actionable.Factories.*;
 
-public class MazeReactors extends ReactorFactories {
-    public MazeReactors(EventManager eventManager) {
-        super(eventManager);
+public class MazeReactors extends EventFactories {
+    public MazeReactors(EventTypes eventTypes) {
+        super(eventTypes);
     }
 
-    public void load() {
-        addPerformers(new EventData<Entity>(eventManager).add("entity", EntityEvent.class, EntityEvent::getEntity), ENTITY_ACTION, ENTITY_CONDITION);
+    private void load() {
+        eachFactory(EntityEvent.class, r -> r.addPerformer("entity", EntityEvent::getEntity, ENTITY_CONDITION, ENTITY_ACTION));
+        eachFactory(EntityDamageEvent.class, r -> r.addPerformer("combined", e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()), e -> e instanceof EntityDamageByEntityEvent, ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
 
-        doWithFactories(EntityDamageEvent.class, eventFactory -> eventFactory.addPerformer("combined", e -> e instanceof EntityDamageByEntityEvent, e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()), ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
-        doWithFactories(PlayerInteractEvent.class, eventFactory -> {
+        eachFactory(PlayerInteractEvent.class, eventFactory -> {
             eventFactory.readableOptions()
                     .add("click_type", Readable.enumeration(ClickType.class), ClickType.BOTH)
                     .add("click_location", Readable.enumeration(ClickLocation.class), ClickLocation.BOTH);

@@ -170,13 +170,13 @@
         <dependency>
             <groupId>io.github.thegatesdev</groupId>
             <artifactId>actionable</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.thegatesdev</groupId>
             <artifactId>eventador</artifactId>
-            <version>1.2.0</version>
+            <version>1.4.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -199,6 +199,7 @@
             <version>1.19.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>

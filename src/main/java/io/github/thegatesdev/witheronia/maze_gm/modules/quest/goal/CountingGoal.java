@@ -1,44 +1,47 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs;
+package io.github.thegatesdev.witheronia.maze_gm.modules.quest.goal;
 
+import io.github.thegatesdev.eventador.core.EventType;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.ActiveGoal;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.Goal;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class SimpleGoal<E extends Event> implements Goal<E> {
-    private final Class<E> eventClass;
+public class CountingGoal<E extends Event> implements Goal<E> {
+    private final EventType<E> eventType;
     private final Predicate<E> eventPredicate;
     private EventCallback<E> onProgress, onFinish, onFail;
     private Consumer<Player> onActivate;
     private int maxProgress = 1;
 
-    public SimpleGoal(final Class<E> eventClass, final Predicate<E> eventPredicate) {
-        this.eventClass = eventClass;
+    public CountingGoal(final EventType<E> eventType, final Predicate<E> eventPredicate) {
+        this.eventType = eventType;
         this.eventPredicate = eventPredicate;
     }
 
-    public SimpleGoal<E> maxProgress(final int maxProgress) {
+    public CountingGoal<E> maxProgress(final int maxProgress) {
         this.maxProgress = maxProgress;
         return this;
     }
 
-    public SimpleGoal<E> onProgress(final EventCallback<E> callback) {
+    public CountingGoal<E> onProgress(final EventCallback<E> callback) {
         this.onProgress = callback;
         return this;
     }
 
-    public SimpleGoal<E> onFinish(final EventCallback<E> callback) {
+    public CountingGoal<E> onFinish(final EventCallback<E> callback) {
         this.onFinish = callback;
         return this;
     }
 
-    public SimpleGoal<E> onFail(final EventCallback<E> callback) {
+    public CountingGoal<E> onFail(final EventCallback<E> callback) {
         this.onFail = callback;
         return this;
     }
 
-    public SimpleGoal<E> onActivate(final Consumer<Player> onActivate) {
+    public CountingGoal<E> onActivate(final Consumer<Player> onActivate) {
         this.onActivate = onActivate;
         return this;
     }
@@ -63,8 +66,8 @@ public class SimpleGoal<E extends Event> implements Goal<E> {
             }
 
             @Override
-            public Class<E> listenedEvent() {
-                return eventClass;
+            public EventType<E> listenedEvent() {
+                return eventType;
             }
 
             @Override

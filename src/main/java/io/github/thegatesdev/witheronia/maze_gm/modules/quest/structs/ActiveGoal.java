@@ -1,5 +1,6 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs;
 
+import io.github.thegatesdev.eventador.core.EventType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
@@ -8,7 +9,7 @@ public interface ActiveGoal<E extends Event> {
 
     boolean isFinished();
 
-    Class<E> listenedEvent();
+    EventType<E> listenedEvent();
 
 
     default void onFinish(E event) {

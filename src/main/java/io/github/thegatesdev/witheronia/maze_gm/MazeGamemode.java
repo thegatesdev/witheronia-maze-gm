@@ -1,8 +1,7 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
-import io.github.thegatesdev.eventador.EventManager;
-import io.github.thegatesdev.eventador.Eventador;
-import io.github.thegatesdev.eventador.ListenerManager;
+import io.github.thegatesdev.eventador.core.EventTypes;
+import io.github.thegatesdev.eventador.listener.ListenerManager;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.data.DataPrimitive;
@@ -13,7 +12,6 @@ import io.github.thegatesdev.witheronia.maze_gm.modules.command.MazeCommandModul
 import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.MazeGenerationModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
-import io.github.thegatesdev.witheronia.maze_gm.util.DataFileLoader;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
@@ -29,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class MazeGamemode extends JavaPlugin {
@@ -42,12 +41,13 @@ public class MazeGamemode extends JavaPlugin {
     private final File configFile = dataPath.resolve("mazegm.yml").toFile();
     private DataMap configurationData;
 
-    private final List<DataFileLoader> dataFileLoaders = new ArrayList<>();
+    private final List<Consumer<DataMap>> dataFileLoaders = new ArrayList<>();
 
     // GLOBAL
 
-    private final ListenerManager listenerManager = new ListenerManager(eventManager(), this);
-    private final MazeReactors mazeReactors = new MazeReactors(eventManager());
+    private final EventTypes eventTypes = new EventTypes("io.papermc.paper.event", "org.bukkit.event", "org.spigotmc.event");
+    private final ListenerManager listenerManager = new ListenerManager(this, eventTypes);
+    private final MazeReactors mazeReactors = new MazeReactors(eventTypes);
 
     // -- CONNECTIONS
 
@@ -75,8 +75,6 @@ public class MazeGamemode extends JavaPlugin {
 
             getServer().getOnlinePlayers().parallelStream().forEach(this::reloadPlayer);
             modules.enableAll();
-
-            listenerManager.updateAll();
 
             listenerManager.handleEvents(true);
 
@@ -108,7 +106,7 @@ public class MazeGamemode extends JavaPlugin {
                 }
                 DataElement.readOf(loaded).ifMap(fileData -> {
                     logger.info("Loading data file " + itemFile.getName());
-                    for (final DataFileLoader loader : dataFileLoaders) loader.onDataFileLoad(fileData);
+                    for (final Consumer<DataMap> loader : dataFileLoaders) loader.accept(fileData);
                 });
             });
         }, () -> logger.warning("item_files should be a list of file paths")));
@@ -130,18 +128,14 @@ public class MazeGamemode extends JavaPlugin {
         configurationData = element.asMap();
     }
 
-    public void onDataFileLoad(DataFileLoader... loaders) {
+    @SafeVarargs
+    public final void onDataFileLoad(Consumer<DataMap>... loaders) {
         Collections.addAll(dataFileLoaders, loaders);
     }
 
     private void reloadPlayer(Player player) {
         final PlayerInventory inventory = player.getInventory();
         inventory.setContents(stacker.itemManager().reloadItems(inventory.getContents()));
-    }
-
-    @Override
-    public void onLoad() {
-        mazeReactors.load();
     }
 
     @Override
@@ -161,12 +155,12 @@ public class MazeGamemode extends JavaPlugin {
         return mazeReactors;
     }
 
-    public ModuleManager<MazeGamemode> modules() {
-        return modules;
+    public EventTypes eventTypes() {
+        return eventTypes;
     }
 
-    public EventManager eventManager() {
-        return Eventador.EVENT_MANAGER;
+    public ModuleManager<MazeGamemode> modules() {
+        return modules;
     }
 
     public ListenerManager listenerManager() {
