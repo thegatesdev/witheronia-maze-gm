@@ -47,49 +47,56 @@ public class CountingGoal<E extends Event> implements Goal<E> {
     }
 
     @Override
+    public EventType<E> listenedEvent() {
+        return eventType;
+    }
+
+    @Override
     public ActiveGoal<E> activate() {
-        return new ActiveGoal<>() {
-            private int progress = 0;
+        return new Active();
+    }
 
-            @Override
-            public boolean doesProgress(final E event) {
-                if (eventPredicate.test(event)) {
-                    progress++;
-                    return true;
-                }
-                return false;
-            }
+    private class Active implements ActiveGoal<E> {
+        private int progress = 0;
 
-            @Override
-            public boolean isFinished() {
-                return progress >= maxProgress;
+        @Override
+        public boolean doesProgress(final E event) {
+            if (eventPredicate.test(event)) {
+                progress++;
+                return true;
             }
+            return false;
+        }
 
-            @Override
-            public EventType<E> listenedEvent() {
-                return eventType;
-            }
+        @Override
+        public boolean isFinished() {
+            return progress >= maxProgress;
+        }
 
-            @Override
-            public void onProgress(final E event) {
-                if (onProgress != null) onProgress.call(event, progress, maxProgress);
-            }
+        @Override
+        public EventType<E> listenedEvent() {
+            return eventType;
+        }
 
-            @Override
-            public void onFail(final E event) {
-                if (onFail != null) onFail.call(event, progress, maxProgress);
-            }
+        @Override
+        public void onProgress(final E event) {
+            if (onProgress != null) onProgress.call(event, progress, maxProgress);
+        }
 
-            @Override
-            public void onFinish(final E event) {
-                if (onFinish != null) onFinish.call(event, progress, maxProgress);
-            }
+        @Override
+        public void onFail(final E event) {
+            if (onFail != null) onFail.call(event, progress, maxProgress);
+        }
 
-            @Override
-            public void onActivate(final Player player) {
-                if (onActivate != null) onActivate.accept(player);
-            }
-        };
+        @Override
+        public void onFinish(final E event) {
+            if (onFinish != null) onFinish.call(event, progress, maxProgress);
+        }
+
+        @Override
+        public void onActivate(final Player player) {
+            if (onActivate != null) onActivate.accept(player);
+        }
     }
 
     @FunctionalInterface

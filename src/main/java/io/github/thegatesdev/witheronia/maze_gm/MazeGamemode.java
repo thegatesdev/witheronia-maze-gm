@@ -6,31 +6,36 @@ import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.data.DataPrimitive;
 import io.github.thegatesdev.stacker.Stacker;
+import io.github.thegatesdev.threshold.PluginEvent;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
-import io.github.thegatesdev.witheronia.maze_gm.data.MazeReactors;
+import io.github.thegatesdev.witheronia.maze_gm.data.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.modules.command.MazeCommandModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.MazeGenerationModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class MazeGamemode extends JavaPlugin {
+
+    public final PluginEvent<LoadDataFileInfo> EVENT_LOAD_DATAFILE = new PluginEvent<>();
+
+    public record LoadDataFileInfo(DataMap read, String name, Path path) {
+    }
 
     private final Logger logger = getLogger();
 
@@ -38,22 +43,22 @@ public class MazeGamemode extends JavaPlugin {
 
     private final Yaml yaml = new Yaml();
     private final Path dataPath = getDataFolder().toPath();
-    private final File configFile = dataPath.resolve("mazegm.yml").toFile();
-    private DataMap configurationData;
+    private final Path configFile = dataPath.resolve("MazeGM.yml");
 
-    private final List<Consumer<DataMap>> dataFileLoaders = new ArrayList<>();
+    private DataMap configurationData = getConfigData();
+    private final DataMap staticSettings = configurationData == null ? new DataMap() : configurationData.getMap("settings", new DataMap());
 
     // GLOBAL
 
     private final EventTypes eventTypes = new EventTypes("io.papermc.paper.event", "org.bukkit.event", "org.spigotmc.event");
     private final ListenerManager listenerManager = new ListenerManager(this, eventTypes);
-    private final MazeReactors mazeReactors = new MazeReactors(eventTypes);
+    private final MazeEvents mazeEvents = new MazeEvents(eventTypes);
 
-    // -- CONNECTIONS
+    // CONNECTIONS
 
     private final Stacker stacker = getPlugin(Stacker.class);
 
-    // -- MODULES
+    // MODULES
 
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<MazeGamemode>(getLogger()).add(
             new MazeCommandModule(this),
@@ -62,19 +67,28 @@ public class MazeGamemode extends JavaPlugin {
             new MazeQuestModule(this)
     );
 
+    // PLUGIN
+
+    private final List<Throwable> instanceErrors = new ArrayList<>();
+
     // -- PLUGIN
 
-    public void reload() {
-        try {
-            listenerManager.handleEvents(false);
+    {
+        listenerManager.listen(PlayerJoinEvent.class, (event, type) -> reloadPlayer(event.getPlayer()));
+    }
 
-            reloadConfigData();
+    public void reload() {
+        instanceErrors.clear();
+        listenerManager.handleEvents(false);
+        try {
+            configurationData = getConfigData();
 
             modules.reloadAll();
-            loadDataFiles();
+            loadDataFiles(); // TODO Allow logging of errors
+            // TODO Async?
 
-            getServer().getOnlinePlayers().parallelStream().forEach(this::reloadPlayer);
-            modules.enableAll();
+            getServer().getOnlinePlayers().parallelStream().forEach(this::reloadPlayer);// TODO Race condition?
+            modules.enableAll(); // TODO Only enable modules that were enabled
 
             listenerManager.handleEvents(true);
 
@@ -90,47 +104,42 @@ public class MazeGamemode extends JavaPlugin {
             elements.iterator(DataPrimitive.class).forEachRemaining(primitive -> {
                 if (!primitive.isStringValue()) return;
                 final String path = primitive.stringValue();
-                File itemFile;
+                Path itemPath;
                 try {
-                    itemFile = dataPath.resolve(path).toFile();
+                    itemPath = dataPath.resolve(path);
                 } catch (InvalidPathException e) {
                     logger.warning("Invalid path '%s'".formatted(path));
                     return;
                 }
                 final Object loaded;
                 try {
-                    loaded = yaml.load(new FileInputStream(itemFile));
-                } catch (FileNotFoundException e) {
-                    logger.warning("Cannot find file " + itemFile.getPath());
+                    loaded = yaml.load(Files.newInputStream(itemPath));
+                } catch (IOException e) {
+                    logger.warning("Failed to read file " + itemPath.getFileName() + "; " + e.getMessage());
                     return;
                 }
                 DataElement.readOf(loaded).ifMap(fileData -> {
-                    logger.info("Loading data file " + itemFile.getName());
-                    for (final Consumer<DataMap> loader : dataFileLoaders) loader.accept(fileData);
-                });
+                    logger.info("Loading data file " + itemPath.getFileName());
+                    EVENT_LOAD_DATAFILE.dispatch(new LoadDataFileInfo(fileData, itemPath.getFileName().toString(), itemPath));
+                }, () -> logger.warning("Failed to load file " + itemPath.getFileName()));
             });
         }, () -> logger.warning("item_files should be a list of file paths")));
     }
 
-    private void reloadConfigData() {
-        Object load;
+    private DataMap getConfigData() {
+        final Object load;
         try {
-            load = yaml.load(new FileInputStream(configFile));
-        } catch (FileNotFoundException e) {
-            logger.warning("No configuration file present.");
-            return;
+            load = yaml.load(Files.newInputStream(configFile));
+        } catch (IOException e) {
+            logger.warning("Could not read config file.");
+            return null;
         }
         final DataElement element = DataElement.readOf(load);
         if (!element.isMap()) {
-            logger.warning("Invalid configuration file, should be a mapping.");
-            return;
+            logger.warning("Invalid configuration file, should be a map.");
+            return null;
         }
-        configurationData = element.asMap();
-    }
-
-    @SafeVarargs
-    public final void onDataFileLoad(Consumer<DataMap>... loaders) {
-        Collections.addAll(dataFileLoaders, loaders);
+        return element.asMap();
     }
 
     private void reloadPlayer(Player player) {
@@ -149,10 +158,20 @@ public class MazeGamemode extends JavaPlugin {
     }
 
 
+    public void logError(Throwable... error) {
+        instanceErrors.addAll(Arrays.asList(error));
+    }
+
+    public void displayErrors(boolean trace) {
+        if (trace) for (final Throwable err : instanceErrors) err.printStackTrace();
+        else for (final Throwable err : instanceErrors) logger.warning(err.getMessage());
+    }
+
+
     // -- GET / SET
 
-    public MazeReactors mazeReactors() {
-        return mazeReactors;
+    public MazeEvents mazeReactors() {
+        return mazeEvents;
     }
 
     public EventTypes eventTypes() {

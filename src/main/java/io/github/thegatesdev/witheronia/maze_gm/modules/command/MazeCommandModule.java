@@ -23,7 +23,7 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
     }
 
     private void createCommands() {
-        add(GiveItemCommand.giveFromGroupArg(plugin.modules().getStatic(MazeItemModule.class).mazeItems()));
+        add(GiveItemCommand.giveFromGroupArg(plugin.modules().getStatic(MazeItemModule.class).mazeItemGroup()));
         add(new LiteralArgument("reload").executes((CommandExecutor) (sender, objects) -> plugin.reload()));
         {
             final LiteralArgument mazeArg = new LiteralArgument("maze");

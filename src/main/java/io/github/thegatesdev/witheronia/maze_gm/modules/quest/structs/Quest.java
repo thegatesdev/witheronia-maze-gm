@@ -1,10 +1,11 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs;
 
+import io.github.thegatesdev.eventador.core.EventType;
 import io.github.thegatesdev.mapletree.registry.Identifiable;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -13,6 +14,7 @@ public class Quest implements Identifiable {
 
     private final String id;
     private final List<Goal<?>> goals = new ArrayList<>();
+    private final Set<EventType<?>> listenedEvents = new HashSet<>();
 
     private Consumer<Player> onActivate, onFinish;
     private Set<String> requiredQuests;
@@ -32,7 +34,10 @@ public class Quest implements Identifiable {
     }
 
     public Quest addGoals(Goal<?>... goals) {
-        Collections.addAll(this.goals, goals);
+        for (final Goal<?> goal : goals) {
+            this.goals.add(goal);
+            this.listenedEvents.add(goal.listenedEvent());
+        }
         return this;
     }
 
@@ -57,6 +62,10 @@ public class Quest implements Identifiable {
 
     public Set<String> requiredQuests() {
         return requiredQuests;
+    }
+
+    public Set<EventType<?>> listenedEvents() {
+        return listenedEvents;
     }
 
     @Override

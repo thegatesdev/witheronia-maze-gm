@@ -9,17 +9,19 @@ import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickType;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import static io.github.thegatesdev.actionable.Factories.*;
 
-public class MazeReactors extends EventFactories {
-    public MazeReactors(EventTypes eventTypes) {
+public class MazeEvents extends EventFactories {
+    public MazeEvents(EventTypes eventTypes) {
         super(eventTypes);
     }
 
     private void load() {
         eachFactory(EntityEvent.class, r -> r.addPerformer("entity", EntityEvent::getEntity, ENTITY_CONDITION, ENTITY_ACTION));
+        eachFactory(PlayerEvent.class, r -> r.addPerformer("player", PlayerEvent::getPlayer, ENTITY_CONDITION, ENTITY_ACTION));
         eachFactory(EntityDamageEvent.class, r -> r.addPerformer("combined", e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()), e -> e instanceof EntityDamageByEntityEvent, ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
 
         eachFactory(PlayerInteractEvent.class, eventFactory -> {

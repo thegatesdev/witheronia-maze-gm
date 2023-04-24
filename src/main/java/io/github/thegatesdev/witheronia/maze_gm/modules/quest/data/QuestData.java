@@ -27,10 +27,15 @@ public class QuestData {
 
     public QuestData addQuest(Quest quest) {
         questMap.putIfAbsent(quest.id(), quest);
+        questEvents.addAll(quest.listenedEvents());
         return this;
     }
 
     public String[] questKeys() {
         return questMap.keySet().toArray(new String[0]);
+    }
+
+    public Set<EventType<?>> questEvents() {
+        return questEvents;
     }
 }
