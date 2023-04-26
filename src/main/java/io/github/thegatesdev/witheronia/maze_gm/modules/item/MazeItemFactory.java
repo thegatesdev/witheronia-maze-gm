@@ -16,6 +16,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MazeItemFactory implements Factory<MazeItemFactory.MazeItem>, ReadableOptionsHolder {
@@ -49,7 +50,7 @@ public class MazeItemFactory implements Factory<MazeItemFactory.MazeItem>, Reada
                 if (flag != null) builder.flag(flag);
             }
         });
-        return new MazeItem(itemId, new CustomItem(itemId, builder), options.getUnsafe("reactors", null));
+        return new MazeItem(itemId, new CustomItem(itemId, builder), options.getUnsafe("reactors", Collections.emptyList()));
     }
 
     public record MazeItem(String id, CustomItem display,

@@ -28,16 +28,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class MazeGamemode extends JavaPlugin {
 
     public final PluginEvent<LoadDataFileInfo> EVENT_LOAD_DATAFILE = new PluginEvent<>();
 
-    public record LoadDataFileInfo(DataMap read, String name, Path path) {
+    public record LoadDataFileInfo(DataMap data, String name, Path path) {
     }
 
     private final Logger logger = getLogger();
+
+    private ExecutorService executorService;
 
     // DATA
 
@@ -83,19 +87,20 @@ public class MazeGamemode extends JavaPlugin {
         try {
             configurationData = getConfigData();
 
-            modules.reloadAll();
-            loadDataFiles(); // TODO Allow logging of errors
-            // TODO Async?
+            modules.unload();
+            loadDataFiles();
+            modules.load();
 
-            getServer().getOnlinePlayers().parallelStream().forEach(this::reloadPlayer);// TODO Race condition?
-            modules.enableAll(); // TODO Only enable modules that were enabled
-
-            listenerManager.handleEvents(true);
-
+            getServer().getOnlinePlayers().forEach(this::reloadPlayer);
         } catch (Exception e) {
             logger.warning("Something went wrong while reloading!");
             e.printStackTrace();
+            logger.warning("Modules will not be enabled.");
+            return;
         }
+        modules.enable();
+
+        listenerManager.handleEvents(true);
     }
 
     private void loadDataFiles() {
@@ -115,13 +120,13 @@ public class MazeGamemode extends JavaPlugin {
                 try {
                     loaded = yaml.load(Files.newInputStream(itemPath));
                 } catch (IOException e) {
-                    logger.warning("Failed to read file " + itemPath.getFileName() + "; " + e.getMessage());
+                    logger.warning("Failed to data file " + itemPath.getFileName() + "; " + e.getMessage());
                     return;
                 }
                 DataElement.readOf(loaded).ifMap(fileData -> {
                     logger.info("Loading data file " + itemPath.getFileName());
-                    EVENT_LOAD_DATAFILE.dispatch(new LoadDataFileInfo(fileData, itemPath.getFileName().toString(), itemPath));
-                }, () -> logger.warning("Failed to load file " + itemPath.getFileName()));
+                    EVENT_LOAD_DATAFILE.dispatchAsync(new LoadDataFileInfo(fileData, itemPath.getFileName().toString(), itemPath), executorService);
+                }, () -> logger.warning("Failed to load file " + itemPath.getFileName() + "; not a map"));
             });
         }, () -> logger.warning("item_files should be a list of file paths")));
     }
@@ -131,7 +136,7 @@ public class MazeGamemode extends JavaPlugin {
         try {
             load = yaml.load(Files.newInputStream(configFile));
         } catch (IOException e) {
-            logger.warning("Could not read config file.");
+            logger.warning("Could not data config file.");
             return null;
         }
         final DataElement element = DataElement.readOf(load);
@@ -149,12 +154,14 @@ public class MazeGamemode extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        executorService = Executors.newFixedThreadPool(3);
         reload();
     }
 
     @Override
     public void onDisable() {
-        modules.disableAll();
+        modules.disable();
+        executorService.shutdown();
     }
 
 
@@ -200,6 +207,10 @@ public class MazeGamemode extends JavaPlugin {
 
     public Yaml yaml() {
         return yaml;
+    }
+
+    public ExecutorService executorService() {
+        return executorService;
     }
 
     // -- UTIL

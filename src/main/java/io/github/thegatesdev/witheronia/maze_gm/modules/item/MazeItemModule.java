@@ -9,8 +9,8 @@ import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 public class MazeItemModule extends PluginModule<MazeGamemode> {
 
@@ -30,7 +30,9 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
             .add(PlayerAttemptPickupItemEvent.class, e -> e.getItem().getItemStack())
             .close());
 
-    private final List<MazeItemFactory.MazeItem> readItems = new ArrayList<>();
+    private final Queue<MazeItemFactory.MazeItem> loadingItems = new ArrayDeque<>();
+
+    // -- MODULE
 
     public MazeItemModule(final MazeGamemode plugin) {
         super("items", plugin);
@@ -45,31 +47,39 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     protected void onUnload() {
         mazeItemListeners.clear();
         mazeItemGroup.clear();
-        readItems.clear();
+        loadingItems.clear();
     }
 
     @Override
     protected void onLoad() {
-        for (final MazeItemFactory.MazeItem readItem : readItems) {
-            mazeItemGroup.register(readItem.display());
-            if (readItem.listeners() != null) for (final var listener : readItem.listeners())
-                mazeItemListeners.listen(readItem.id(), listener);
+        pollLoaded();
+    }
+
+    // -- LOADING
+
+    private void pollLoaded() {
+        var polled = loadingItems.poll();
+        while (polled != null) {
+            register(polled);
+            polled = loadingItems.poll();
         }
     }
 
-    private void onDataFileLoad(MazeGamemode.LoadDataFileInfo data) {
-        data.read().ifList("maze_items", list -> {
-            for (final DataElement el : list)
-                if (el.isMap()) {
-                    try {
-                        readItems.add(mazeItemFactory.build(el.asMap()));
-                    } catch (Throwable e) {
-                        plugin.logError(e);
-                    }
-                }
+    private void onDataFileLoad(MazeGamemode.LoadDataFileInfo info) {
+        if (!isEnabled) return;
+        info.data().ifList("maze_items", list -> {
+            for (DataElement el : list)
+                if (el.isMap()) loadingItems.add(mazeItemFactory.build(el.asMap()));
         });
     }
-    
+
+    // -- ITEMS
+
+    public synchronized void register(MazeItemFactory.MazeItem item) {
+        mazeItemGroup.register(item.display());
+        for (var listener : item.listeners()) mazeItemListeners.listen(item.id(), listener);
+    }
+
     // -- GET / SET
 
     public ItemGroup mazeItemGroup() {
