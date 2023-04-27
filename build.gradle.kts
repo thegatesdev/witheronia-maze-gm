@@ -70,7 +70,7 @@ tasks{
     }
 
     register<Copy>("copyJarToLocalServer") {
-        from(reobfJar)
+        from(jar)
         into("D:\\Coding\\Minecraft\\SERVER\\plugins")
     }
 }
