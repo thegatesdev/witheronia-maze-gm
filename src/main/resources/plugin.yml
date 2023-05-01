@@ -5,8 +5,8 @@ api-version: $apiVersion
 description: $description
 main: io.github.thegatesdev.witheronia.maze_gm.MazeGamemode
 depend:
-  - Threshold
-  - Stacker
-  - Actionable
-  - Eventador
+  - threshold
+  - stacker
+  - actionable
+  - eventador
   - CommandAPI
