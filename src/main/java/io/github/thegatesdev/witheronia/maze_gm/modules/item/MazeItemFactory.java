@@ -11,7 +11,6 @@ import io.github.thegatesdev.mapletree.registry.Identifiable;
 import io.github.thegatesdev.stacker.CustomItem;
 import io.github.thegatesdev.stacker.MetaBuilder;
 import io.github.thegatesdev.threshold.Threshold;
-import io.github.thegatesdev.witheronia.maze_gm.data.MazeDataTypes;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -19,13 +18,15 @@ import org.bukkit.inventory.ItemFlag;
 import java.util.Collections;
 import java.util.List;
 
+import static io.github.thegatesdev.actionable.Actionable.COLORED_STRING;
+
 public class MazeItemFactory implements Factory<MazeItemFactory.MazeItem>, ReadableOptionsHolder {
 
     private final ReadableOptions itemOptions = new ReadableOptions()
             .add("material", Readable.enumeration(Material.class))
             .add("id", Readable.primitive(String.class))
-            .add("name", MazeDataTypes.COLORED_STRING, null)
-            .add("lore", MazeDataTypes.COLORED_STRING.list(), null)
+            .add("name", COLORED_STRING, null)
+            .add("lore", COLORED_STRING.list(), null)
             .add("flags", Readable.primitive(String.class).list(), null);
 
     public MazeItemFactory(EventFactories eventFactories) {
