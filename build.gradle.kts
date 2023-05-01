@@ -31,7 +31,7 @@ dependencies {
     compileOnly("io.github.thegatesdev:stacker:0.9.2")
 }
 
-tasks{
+tasks {
     processResources {
         filteringCharset = Charsets.UTF_8.name()
         val props = mapOf(
@@ -51,16 +51,16 @@ tasks{
         options.release.set(17)
     }
 
-    shadowJar{
+    shadowJar {
         minimize()
-        dependencies{
+        dependencies {
             include(dependency("com.github.stefvanschie.inventoryframework:IF"))
             include(dependency("io.github.thegatesdev:maze-generator"))
         }
     }
 
     register<Copy>("copyJarToLocalServer") {
-        from(jar)
+        from(shadowJar)
         into("D:\\Coding\\Minecraft\\SERVER\\plugins")
     }
 }
