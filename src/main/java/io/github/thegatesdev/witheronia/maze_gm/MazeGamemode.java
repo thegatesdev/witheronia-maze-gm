@@ -47,7 +47,7 @@ public class MazeGamemode extends JavaPlugin {
 
     private final Yaml yaml = new Yaml();
     private final Path dataPath = getDataFolder().toPath();
-    private final Path configFile = dataPath.resolve("MazeGM.yml");
+    private final Path configFile = dataPath.resolve("config.yml");
 
     private DataMap configurationData = getConfigData();
     private final DataMap staticSettings = configurationData == null ? new DataMap() : configurationData.getMap("settings", new DataMap());
