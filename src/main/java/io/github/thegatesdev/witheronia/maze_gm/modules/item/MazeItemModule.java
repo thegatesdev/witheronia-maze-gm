@@ -5,6 +5,7 @@ import io.github.thegatesdev.eventador.util.MappedListeners;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.stacker.ItemGroup;
+import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import org.bukkit.event.player.*;
@@ -33,11 +34,12 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
 
     private final List<MazeItemFactory.MazeItem> loadedItems = new ArrayList<>();
 
+    public MazeItemModule(ModuleManager<MazeGamemode> moduleManager) {
+        super("items", moduleManager);
+    }
+
     // -- MODULE
 
-    public MazeItemModule(final MazeGamemode plugin) {
-        super("items", plugin);
-    }
 
     @Override
     protected void onFirstLoad() {
@@ -61,6 +63,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     private void pollLoaded() {
         loadedItems.forEach(this::register);
         loadedItems.clear();
+        plugin.getLogger().info("Loaded");
     }
 
     private void onDataFileLoad(MazeGamemode.LoadDataFileInfo info) {

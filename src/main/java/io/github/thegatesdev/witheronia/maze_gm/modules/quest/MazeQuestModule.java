@@ -4,6 +4,7 @@ import io.github.thegatesdev.eventador.core.EventSet;
 import io.github.thegatesdev.eventador.core.EventType;
 import io.github.thegatesdev.eventador.listener.DynamicListener;
 import io.github.thegatesdev.eventador.util.EventData;
+import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.data.PlayerQuestData;
@@ -26,8 +27,8 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> implements Dynam
             .add(BlockBreakEvent.class, BlockBreakEvent::getPlayer);
     private final EventSet eventSet = EventSet.mimic(plugin.eventTypes(), questData.questEvents());
 
-    public MazeQuestModule(final MazeGamemode plugin) {
-        super("quests", plugin);
+    public MazeQuestModule(ModuleManager<MazeGamemode> moduleManager) {
+        super("quests", moduleManager);
     }
 
     @Override

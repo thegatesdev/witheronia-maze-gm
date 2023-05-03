@@ -1,5 +1,6 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze;
 
+import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import org.bukkit.Material;
@@ -26,9 +27,10 @@ public class MazeGenerationModule extends PluginModule<MazeGamemode> {
                 }
             });
 
-    public MazeGenerationModule(final MazeGamemode plugin) {
-        super("maze_generation", plugin);
+    public MazeGenerationModule(ModuleManager<MazeGamemode> moduleManager) {
+        super("maze_generation", moduleManager);
     }
+
 
     // -- GET / SET
 

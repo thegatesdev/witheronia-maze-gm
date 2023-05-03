@@ -64,11 +64,8 @@ public class MazeGamemode extends JavaPlugin {
 
     // MODULES
 
-    private final ModuleManager<MazeGamemode> modules = new ModuleManager<MazeGamemode>(getLogger()).add(
-            new MazeCommandModule(this),
-            new MazeGenerationModule(this),
-            new MazeItemModule(this),
-            new MazeQuestModule(this)
+    private final ModuleManager<MazeGamemode> modules = new ModuleManager<>(this).add(
+            MazeCommandModule::new, MazeGenerationModule::new, MazeItemModule::new, MazeQuestModule::new
     );
 
     // PLUGIN
@@ -106,30 +103,28 @@ public class MazeGamemode extends JavaPlugin {
     }
 
     private void loadDataFiles() {
-        configurationData().ifPresent(data -> data.ifList("data_files", elements -> {
-            elements.iterator(DataPrimitive.class).forEachRemaining(primitive -> {
-                if (!primitive.isStringValue()) return;
-                final String path = primitive.stringValue();
-                Path itemPath;
-                try {
-                    itemPath = dataPath.resolve(path);
-                } catch (InvalidPathException e) {
-                    logger.warning("Invalid path '%s'".formatted(path));
-                    return;
-                }
-                final Object loaded;
-                try {
-                    loaded = yaml.load(Files.newInputStream(itemPath));
-                } catch (IOException e) {
-                    logger.warning("Failed to data file " + itemPath.getFileName() + "; " + e.getMessage());
-                    return;
-                }
-                DataElement.readOf(loaded).ifMap(fileData -> {
-                    logger.info("Loading data file " + itemPath.getFileName());
-                    EVENT_LOAD_DATAFILE.dispatchAsync(new LoadDataFileInfo(fileData, itemPath.getFileName().toString(), itemPath), executorService);
-                }, () -> logger.warning("Failed to load file " + itemPath.getFileName() + "; not a map"));
-            });
-        }, () -> logger.warning("item_files should be a list of file paths")));
+        configurationData().ifPresent(data -> data.ifList("data_files", elements -> elements.iterator(DataPrimitive.class).forEachRemaining(primitive -> {
+            if (!primitive.isStringValue()) return;
+            final String path = primitive.stringValue();
+            Path itemPath;
+            try {
+                itemPath = dataPath.resolve(path);
+            } catch (InvalidPathException e) {
+                logger.warning("Invalid path '%s'".formatted(path));
+                return;
+            }
+            final Object loaded;
+            try {
+                loaded = yaml.load(Files.newInputStream(itemPath));
+            } catch (IOException e) {
+                logger.warning("Failed to data file " + itemPath.getFileName() + "; " + e.getMessage());
+                return;
+            }
+            DataElement.readOf(loaded).ifMap(fileData -> {
+                logger.info("Loading data file " + itemPath.getFileName());
+                EVENT_LOAD_DATAFILE.dispatchAsync(new LoadDataFileInfo(fileData, itemPath.getFileName().toString(), itemPath), executorService);
+            }, () -> logger.warning("Failed to load file " + itemPath.getFileName() + "; not a map"));
+        }), () -> logger.warning("item_files should be a list of file paths")));
     }
 
     private DataMap getConfigData() {
