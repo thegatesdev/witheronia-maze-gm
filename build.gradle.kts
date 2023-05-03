@@ -58,4 +58,9 @@ tasks {
             include(dependency("io.github.thegatesdev:maze-generator"))
         }
     }
+
+    register<Copy>("pluginJar"){
+        from(shadowJar)
+        into(buildDir.resolve("pluginJar"))
+    }
 }
