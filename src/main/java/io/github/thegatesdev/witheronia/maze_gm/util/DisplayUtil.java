@@ -23,7 +23,7 @@ public class DisplayUtil {
 
     public static Component displayList(Component title, Component body) {
         return Component.join(JoinConfiguration.newlines(),
-                Component.text("------- ", LIST_BORDER_STYLE).append(title.style(EMPHASIS_STYLE)),
+                Component.text("------- ", LIST_BORDER_STYLE).append(title.style(TEXT_STYLE)),
                 body.applyFallbackStyle(TEXT_STYLE),
                 Component.text("-------", LIST_BORDER_STYLE)
         );
