@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 
 public class MazeGamemode extends JavaPlugin {
 
-    public final PluginEvent<LoadDataFileInfo> EVENT_LOAD_DATAFILE = new PluginEvent<>();
+    public final PluginEvent<LoadDataFileInfo> EVENT_LOAD_DATAFILE = new PluginEvent<>(this::logError);
 
     public record LoadDataFileInfo(DataMap data, String name, Path path) {
     }
@@ -73,7 +73,7 @@ public class MazeGamemode extends JavaPlugin {
 
     // PLUGIN
 
-    private final List<Throwable> instanceErrors = new ArrayList<>();
+    private final List<Exception> instanceErrors = new ArrayList<>();
 
     // -- PLUGIN
 
@@ -93,11 +93,13 @@ public class MazeGamemode extends JavaPlugin {
 
             getServer().getOnlinePlayers().forEach(this::reloadPlayer);
         } catch (Exception e) {
-            logger.warning("Something went wrong while reloading!");
+            logger.warning("Something unexpected happened while reloading:");
             e.printStackTrace();
-            logger.warning("Modules will not be enabled.");
+            logger.warning("Modules will not be enabled...");
             return;
         }
+        if (staticSettings.getBoolean("display_reload_errors", true)) displayErrors(false);
+
         modules.enable();
 
         listenerManager.handleEvents(true);
@@ -105,7 +107,6 @@ public class MazeGamemode extends JavaPlugin {
 
     private void loadDataFiles() {
         configurationData().ifPresent(data -> data.ifList("data_files", elements -> {
-            logger.info("Loading items...");
             elements.iterator(DataPrimitive.class).forEachRemaining(primitive -> {
                 if (!primitive.isStringValue()) return;
                 final String path = primitive.stringValue();
@@ -136,7 +137,7 @@ public class MazeGamemode extends JavaPlugin {
         try {
             load = yaml.load(Files.newInputStream(configFile));
         } catch (IOException e) {
-            logger.warning("Could not data config file.");
+            logger.warning("Could not load data config file.");
             return null;
         }
         final DataElement element = DataElement.readOf(load);
@@ -165,13 +166,22 @@ public class MazeGamemode extends JavaPlugin {
     }
 
 
-    public void logError(Throwable... error) {
-        instanceErrors.addAll(Arrays.asList(error));
+    public void logError(Collection<Exception> errors) {
+        instanceErrors.addAll(errors);
+    }
+
+    public void logError(Exception error) {
+        instanceErrors.add(error);
     }
 
     public void displayErrors(boolean trace) {
-        if (trace) for (final Throwable err : instanceErrors) err.printStackTrace();
-        else for (final Throwable err : instanceErrors) logger.warning(err.getMessage());
+        if (!instanceErrors.isEmpty()) logger.warning("There are active errors...");
+        if (trace) for (final Exception err : instanceErrors) err.printStackTrace();
+        else for (final Exception err : instanceErrors) logger.warning(err.getMessage());
+    }
+
+    public void clearErrors() {
+        instanceErrors.clear();
     }
 
 

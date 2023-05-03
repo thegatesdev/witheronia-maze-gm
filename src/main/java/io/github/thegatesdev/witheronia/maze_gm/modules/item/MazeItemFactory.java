@@ -30,7 +30,7 @@ public class MazeItemFactory implements Factory<MazeItemFactory.MazeItem>, Reada
             .add("flags", Readable.primitive(String.class).list(), null);
 
     public MazeItemFactory(EventFactories eventFactories) {
-        itemOptions.add("reactors", eventFactories);
+        itemOptions.add("reactors", eventFactories.list());
     }
 
     @Override

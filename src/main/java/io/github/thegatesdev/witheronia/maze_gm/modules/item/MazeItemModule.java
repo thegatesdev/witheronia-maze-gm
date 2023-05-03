@@ -3,6 +3,7 @@ package io.github.thegatesdev.witheronia.maze_gm.modules.item;
 import io.github.thegatesdev.eventador.util.EventData;
 import io.github.thegatesdev.eventador.util.MappedListeners;
 import io.github.thegatesdev.maple.data.DataElement;
+import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.stacker.ItemGroup;
 import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MazeItemModule extends PluginModule<MazeGamemode> {
-    
+
     private final MazeItemFactory mazeItemFactory = new MazeItemFactory(plugin.mazeReactors());
     private final ItemGroup mazeItemGroup = new ItemGroup("maze_items", plugin.key("maze_item"), true);
     private final MappedListeners<String> mazeItemListeners = new MappedListeners<>(plugin.listenerManager(), new EventData<String>(plugin.eventTypes())
@@ -30,7 +31,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
             .add(PlayerAttemptPickupItemEvent.class, e -> e.getItem().getItemStack())
             .close());
 
-    private final List<MazeItemFactory.MazeItem> loadingItems = new ArrayList<>();
+    private final List<MazeItemFactory.MazeItem> loadedItems = new ArrayList<>();
 
     // -- MODULE
 
@@ -47,7 +48,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     protected void onUnload() {
         mazeItemListeners.clear();
         mazeItemGroup.clear();
-        loadingItems.clear();
+        loadedItems.clear();
     }
 
     @Override
@@ -58,14 +59,20 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     // -- LOADING
 
     private void pollLoaded() {
-        loadingItems.forEach(this::register);
-        loadingItems.clear();
+        loadedItems.forEach(this::register);
+        loadedItems.clear();
     }
 
     private void onDataFileLoad(MazeGamemode.LoadDataFileInfo info) {
         info.data().ifList("maze_items", list -> {
             for (DataElement el : list)
-                if (el.isMap()) loadingItems.add(mazeItemFactory.build(el.asMap()));
+                if (el.isMap()) {
+                    try {
+                        loadedItems.add(mazeItemFactory.build(el.asMap()));
+                    } catch (ElementException e) {
+                        plugin.logError(e);
+                    }
+                }
         });
     }
 
