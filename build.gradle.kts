@@ -58,9 +58,4 @@ tasks {
             include(dependency("io.github.thegatesdev:maze-generator"))
         }
     }
-
-    register<Copy>("copyJarToLocalServer") {
-        from(shadowJar)
-        into("D:\\Coding\\Minecraft\\SERVER\\plugins")
-    }
 }
