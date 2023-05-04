@@ -23,13 +23,13 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
         super("commands", moduleManager);
     }
 
-    
+
     private void createCommands() {
-        add("items", GiveItemCommand.giveFromGroupArg(plugin.modules().getStatic(MazeItemModule.class).mazeItemGroup()));
+        add("items", GiveItemCommand.giveFromGroupArg(moduleManager.getStatic(MazeItemModule.class).mazeItemGroup()));
         add(new LiteralArgument("reload").executes((CommandExecutor) (sender, objects) -> plugin.reload()));
         {
             final LiteralArgument mazeArg = new LiteralArgument("maze");
-            MazeGenerator basicGenerator = plugin.modules().getStatic(MazeGenerationModule.class).basicGenerator();
+            MazeGenerator basicGenerator = moduleManager.getStatic(MazeGenerationModule.class).basicGenerator();
             mazeArg.then(GenerateMazeCommand.placeBlocksArg(plugin, basicGenerator));
             mazeArg.then(GenerateMazeCommand.generateArg(basicGenerator));
             add(mazeArg);
@@ -37,7 +37,7 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
         add(OptionsCommand.dataTypeOptionsArg());
         add(OptionsCommand.factoryOptionsArg());
         add(OptionsCommand.eventOptionsArg(plugin.mazeReactors()));
-        add("quest", QuestCommand.activateQuestArg(plugin.modules().getStatic(MazeQuestModule.class)));
+        add("quest", QuestCommand.activateQuestArg(moduleManager.getStatic(MazeQuestModule.class)));
     }
 
     private void add(ArgumentTree args) {
@@ -51,7 +51,7 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
     // -- MODULE
 
     @Override
-    protected void onFirstLoad() {
+    protected void onInitialize() {
         createCommands();
         baseCommand.register();
     }
