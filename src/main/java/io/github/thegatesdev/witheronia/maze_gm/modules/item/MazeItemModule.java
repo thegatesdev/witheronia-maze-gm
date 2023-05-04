@@ -1,6 +1,5 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.item;
 
-import io.github.thegatesdev.eventador.util.EventData;
 import io.github.thegatesdev.eventador.util.MappedListeners;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.exception.ElementException;
@@ -8,7 +7,6 @@ import io.github.thegatesdev.stacker.ItemGroup;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
-import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -18,19 +16,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
 
     private final MazeItemFactory mazeItemFactory = new MazeItemFactory(plugin.mazeReactors());
     private final ItemGroup mazeItemGroup = new ItemGroup("maze_items", plugin.key("maze_item"), true);
-    private final MappedListeners<String> mazeItemListeners = new MappedListeners<>(plugin.listenerManager(), new EventData<String>(plugin.eventTypes())
-            .transform(ItemStack.class, mazeItemGroup::itemId)
-            .add(PlayerInteractEvent.class, PlayerInteractEvent::getItem)
-            .add(PlayerSwapHandItemsEvent.class, PlayerSwapHandItemsEvent::getMainHandItem)
-            .add(PlayerSwapHandItemsEvent.class, PlayerSwapHandItemsEvent::getOffHandItem)
-            .add(PlayerDropItemEvent.class, e -> e.getItemDrop().getItemStack())
-            .add(PlayerItemConsumeEvent.class, PlayerItemConsumeEvent::getItem)
-            .add(PlayerItemHeldEvent.class, e -> e.getPlayer().getInventory().getItem(e.getNewSlot()))
-            .add(PlayerItemHeldEvent.class, e -> e.getPlayer().getInventory().getItem(e.getPreviousSlot()))
-            .add(PlayerItemBreakEvent.class, PlayerItemBreakEvent::getBrokenItem)
-            .add(PlayerItemDamageEvent.class, PlayerItemDamageEvent::getItem)
-            .add(PlayerAttemptPickupItemEvent.class, e -> e.getItem().getItemStack())
-            .close());
+    private final MappedListeners<ItemStack, String> mazeItemListeners = new MazeItemListener(plugin.listenerManager(), plugin.eventTypes(), mazeItemGroup);
 
     private final List<MazeItemFactory.MazeItem> loadedItems = new ArrayList<>();
 
@@ -42,7 +28,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
 
 
     @Override
-    protected void onFirstLoad() {
+    protected void onInitialize() {
         plugin.EVENT_LOAD_DATAFILE.bind(this::onDataFileLoad);
     }
 
@@ -62,20 +48,19 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
 
     private void pollLoaded() {
         loadedItems.forEach(this::register);
+        logger.info("Successfully loaded " + loadedItems.size() + " items");
         loadedItems.clear();
-        plugin.getLogger().info("Loaded");
     }
 
     private void onDataFileLoad(MazeGamemode.LoadDataFileInfo info) {
         info.data().ifList("maze_items", list -> {
-            for (DataElement el : list)
-                if (el.isMap()) {
-                    try {
-                        loadedItems.add(mazeItemFactory.build(el.asMap()));
-                    } catch (ElementException e) {
-                        plugin.logError(e);
-                    }
+            for (DataElement el : list) {
+                if (el.isMap()) try {
+                    loadedItems.add(mazeItemFactory.build(el.asMap()));
+                } catch (ElementException e) {
+                    plugin.logError(e);
                 }
+            }
         });
     }
 
