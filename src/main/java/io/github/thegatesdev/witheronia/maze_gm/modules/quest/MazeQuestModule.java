@@ -25,14 +25,14 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> implements Dynam
             .add(PlayerEvent.class, PlayerEvent::getPlayer)
             .add(EntityEvent.class, event -> event.getEntity() instanceof Player player ? player : null)
             .add(BlockBreakEvent.class, BlockBreakEvent::getPlayer);
-    private final EventSet eventSet = EventSet.mimic(plugin.eventTypes(), questData.questEvents());
+    private final EventSet eventSet = EventSet.mimic(questData.questEvents());
 
     public MazeQuestModule(ModuleManager<MazeGamemode> moduleManager) {
         super("quests", moduleManager);
     }
 
     @Override
-    protected void onFirstLoad() {
+    protected void onInitialize() {
         plugin.listenerManager().listen(this);
     }
 
