@@ -44,12 +44,12 @@ public class OptionsCommand {
         return new LiteralArgument("factory").then(
                 new StringArgument("type").replaceSuggestions(ArgumentSuggestions.strings(Factories.keys()))
                         .executes((sender, args) -> {
-                            final String[] strings = Factories.get((String) args[0]).keyArray(new String[0]);
+                            final String[] strings = Factories.get((String) args[0]).keys();
                             final ArrayList<Component> components = new ArrayList<>(strings.length);
                             for (final String string : strings)
                                 components.add(Component.text(string, DisplayUtil.TEXT_STYLE));
                             sender.sendMessage(DisplayUtil.displayList(Component.text(""), Component.join(JoinConfiguration.commas(true), components)));
-                        }).then(new StringArgument("entry").replaceSuggestions(ArgumentSuggestions.strings(info -> Factories.get((String) info.previousArgs()[0]).keyArray(new String[0])))
+                        }).then(new StringArgument("entry").replaceSuggestions(ArgumentSuggestions.strings(info -> Factories.get((String) info.previousArgs()[0]).keys()))
                                 .executes((sender, args) -> {
                                     final String factoryType = (String) args[0];
                                     final String factoryEntry = (String) args[1];
