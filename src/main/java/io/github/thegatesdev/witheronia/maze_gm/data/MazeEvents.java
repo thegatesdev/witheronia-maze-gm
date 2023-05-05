@@ -6,6 +6,7 @@ import io.github.thegatesdev.eventador.core.EventTypes;
 import io.github.thegatesdev.mapletree.data.Readable;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickLocation;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickType;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityEvent;
@@ -17,6 +18,7 @@ import static io.github.thegatesdev.actionable.Factories.*;
 public class MazeEvents extends EventFactories {
     public MazeEvents(EventTypes eventTypes) {
         super(eventTypes);
+        load();
     }
 
     private void load() {
@@ -25,12 +27,14 @@ public class MazeEvents extends EventFactories {
         eachFactory(EntityDamageEvent.class, r -> r.addPerformer("combined", e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()), e -> e instanceof EntityDamageByEntityEvent, ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
 
         eachFactory(PlayerInteractEvent.class, eventFactory -> {
+
             eventFactory.readableOptions()
-                    .add("click_type", Readable.enumeration(ClickType.class), ClickType.BOTH)
-                    .add("click_location", Readable.enumeration(ClickLocation.class), ClickLocation.BOTH);
+                    .add("click_type", Readable.enumeration(ClickType.class), ClickType.ANY)
+                    .add("click_location", Readable.enumeration(ClickLocation.class), ClickLocation.ANY);
             eventFactory.addStaticCondition((data, e) -> {
-                if (!ClickType.spigot(e.getAction()).compare(data.get("click_type", ClickType.class))) return false;
-                return ClickLocation.spigot(e.getAction()).compare(data.get("click_location", ClickLocation.class));
+                final Action action = e.getAction();
+                return data.<ClickType>getUnsafe("click_type").compare(action) &&
+                        data.<ClickLocation>getUnsafe("click_location").compare(action);
             });
         });
     }
