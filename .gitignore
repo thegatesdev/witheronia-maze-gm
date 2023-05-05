@@ -2,6 +2,7 @@
 *.iws
 *.iml
 *.ipr
+TODO.md
 
 .gradle
 /build/
