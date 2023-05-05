@@ -30,6 +30,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     @Override
     protected void onInitialize() {
         plugin.EVENT_LOAD_DATAFILE.bind(this::onDataFileLoad);
+        plugin.stacker().itemManager().addGroup(mazeItemGroup);
     }
 
     @Override
