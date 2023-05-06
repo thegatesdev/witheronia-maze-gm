@@ -13,6 +13,14 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
+sourceSets {
+    main {
+        java {
+            exclude("**/generation/maze/archived/**")
+        }
+    }
+}
+
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://jitpack.io")

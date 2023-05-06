@@ -1,17 +1,15 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze;
+package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.archived;
 
 import io.github.thegatesdev.maze_generator_lib.Maze;
 import io.github.thegatesdev.threshold.world.WorldModification;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
 public class MazeGenerator {
     private boolean isGenerated = false;
     private Set<FeatureGenerator> generators;
-    private BukkitRunnable runnable;
     private Material[][][] generated;
     private Vector3 generatedSize;
 

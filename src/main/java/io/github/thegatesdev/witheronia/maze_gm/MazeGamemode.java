@@ -65,8 +65,8 @@ public class MazeGamemode extends JavaPlugin {
     // MODULES
 
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<>(this).add(
-            MazeCommandModule::new, MazeGenerationModule::new, MazeItemModule::new, MazeQuestModule::new
-    );
+            MazeCommandModule::new, MazeItemModule::new, MazeQuestModule::new
+    ).initialize();
 
     // PLUGIN
 

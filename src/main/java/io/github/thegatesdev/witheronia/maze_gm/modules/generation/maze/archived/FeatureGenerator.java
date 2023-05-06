@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze;
+package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.archived;
 
 import java.util.Random;
 
