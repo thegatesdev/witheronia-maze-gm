@@ -54,7 +54,7 @@ public class MazeGamemode extends JavaPlugin {
 
     // GLOBAL
 
-    private final EventTypes eventTypes = new EventTypes("io.papermc.paper.event", "org.bukkit.event", "org.spigotmc.event");
+    private final EventTypes eventTypes = new EventTypes();
     private final ListenerManager listenerManager = new ListenerManager(this, eventTypes);
     private final MazeEvents mazeEvents = new MazeEvents(eventTypes);
 
