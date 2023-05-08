@@ -109,7 +109,7 @@ public class ViewOptionsCommand {
                     sender.sendMessage(DisplayUtil.displayBlock(text("Available factories"), text(String.join("\n", factoryRegistry.keys()), VAR_VAL_STYLE)));
                     return 1;
                 }).then(new StringArgument("factory_entry_id")
-                        .replaceSuggestions(ArgumentSuggestions.strings(info -> Factories.get(info.previousArgs().getUnchecked("factory_id")).keys()))
+                        .replaceSuggestions(ArgumentSuggestions.stringCollection(info -> Factories.get(info.previousArgs().getUnchecked("factory_id")).keys()))
                         .executes((sender, args) -> {
                             String factoryId = args.getUnchecked("factory_id");
                             FactoryRegistry<?, ?> factoryRegistry = Factories.get(factoryId);
