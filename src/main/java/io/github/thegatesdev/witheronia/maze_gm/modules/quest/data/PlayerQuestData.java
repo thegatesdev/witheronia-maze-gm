@@ -19,11 +19,11 @@ public class PlayerQuestData {
     }
 
     public final <O> void activate(Quest quest, Player player) {
-        if (activeIds.add(quest.id())) activeQuests.add(quest.activate(player));
+        if (activeIds.add(quest.id())) activeQuests.add(quest.createActive(player));
     }
 
     public boolean canActivate(Quest quest) {
-        return !isActive(quest.id()) && (quest.requiredQuests() == null || hasFinished(quest.requiredQuests()));
+        return quest.requiredQuests() == null || hasFinished(quest.requiredQuests());
     }
 
     public final <O> void finish(ActiveQuest toFinish) {

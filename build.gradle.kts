@@ -30,10 +30,10 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
 
     api("com.github.stefvanschie.inventoryframework:IF:0.10.8")
-    compileOnly("dev.jorel:commandapi-core:8.8.0")
+    compileOnly("dev.jorel:commandapi-bukkit-core:9.0.0")
 
     api("io.github.thegatesdev:maze-generator:1.1")
-    compileOnly("io.github.thegatesdev:threshold:0.2")
+    compileOnly("io.github.thegatesdev:threshold:0.3")
     compileOnly("io.github.thegatesdev:actionable:1.2")
     compileOnly("io.github.thegatesdev:eventador:1.4.2")
     compileOnly("io.github.thegatesdev:stacker:0.9.2")

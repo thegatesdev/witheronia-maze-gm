@@ -20,7 +20,7 @@ import java.util.List;
 
 import static io.github.thegatesdev.actionable.Actionable.COLORED_STRING;
 
-public class MazeItemFactory implements Factory<MazeItemFactory.MazeItem>, ReadableOptionsHolder {
+public class MazeItemFactory implements Factory<MazeItemFactory.ReadItem>, ReadableOptionsHolder {
 
     private final ReadableOptions itemOptions = new ReadableOptions()
             .add("material", Readable.enumeration(Material.class))
@@ -39,7 +39,7 @@ public class MazeItemFactory implements Factory<MazeItemFactory.MazeItem>, Reada
     }
 
     @Override
-    public MazeItem build(final DataMap data) {
+    public ReadItem build(final DataMap data) {
         final DataMap options = itemOptions.read(data);
         final String itemId = options.getString("id");
         final MetaBuilder builder = new MetaBuilder(options.get("material", Material.class));
@@ -51,10 +51,10 @@ public class MazeItemFactory implements Factory<MazeItemFactory.MazeItem>, Reada
                 if (flag != null) builder.flag(flag);
             }
         });
-        return new MazeItem(itemId, new CustomItem(itemId, builder), options.getUnsafe("reactors", Collections.emptyList()));
+        return new ReadItem(itemId, new CustomItem(itemId, builder), options.getUnsafe("reactors", Collections.emptyList()));
     }
 
-    public record MazeItem(String id, CustomItem display,
+    public record ReadItem(String id, CustomItem display,
                            List<EventFactory<?>.ReadPerformers> listeners) implements Identifiable {
     }
 }

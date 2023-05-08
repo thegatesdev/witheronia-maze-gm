@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.archived;
+package io.github.thegatesdev.witheronia.maze_gm.modules.archived.generation.maze;
 
 public class Vector3 {
 

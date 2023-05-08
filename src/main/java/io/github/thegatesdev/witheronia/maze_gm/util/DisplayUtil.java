@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DisplayUtil {
-    public static final Style LIST_BORDER_STYLE = Style.style().color(NamedTextColor.GREEN).build();
+    public static final Style BLOCK_BORDER_STYLE = Style.style().color(NamedTextColor.GREEN).build();
     public static final Style TEXT_STYLE = Style.style().color(NamedTextColor.GRAY).build();
     public static final Style VAR_STYLE = Style.style().color(NamedTextColor.GOLD).build();
     public static final Style FAIL_STYLE = Style.style().color(NamedTextColor.RED).build();
@@ -21,15 +21,15 @@ public class DisplayUtil {
     public static final Style VAR_VAL_STYLE = Style.style().color(NamedTextColor.AQUA).build();
     public static final Style EMPHASIS_STYLE = Style.style().color(NamedTextColor.BLUE).decorate(TextDecoration.ITALIC).build();
 
-    public static Component displayList(Component title, Component body) {
+    public static Component displayBlock(Component title, Component body) {
         return Component.join(JoinConfiguration.newlines(),
-                Component.text("------- ", LIST_BORDER_STYLE).append(title.style(TEXT_STYLE)),
+                Component.text("------- ", BLOCK_BORDER_STYLE).append(title.style(TEXT_STYLE)),
                 body.applyFallbackStyle(TEXT_STYLE),
-                Component.text("-------", LIST_BORDER_STYLE)
+                Component.text("-------", BLOCK_BORDER_STYLE)
         );
     }
 
-    public static Component displayReadableData(ReadableOptions readableData) {
+    public static Component displayReadableOptions(ReadableOptions readableData) {
         final Map<String, ReadableOptions.Entry<?>> entries = readableData.getEntries();
         final List<Component> out = new ArrayList<>(entries.size());
         entries.forEach((s, entry) -> {

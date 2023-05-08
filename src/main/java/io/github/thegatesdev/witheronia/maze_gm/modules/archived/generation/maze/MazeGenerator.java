@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.archived;
+package io.github.thegatesdev.witheronia.maze_gm.modules.archived.generation.maze;
 
 import io.github.thegatesdev.maze_generator_lib.Maze;
 import io.github.thegatesdev.threshold.world.WorldModification;

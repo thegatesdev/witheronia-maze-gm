@@ -1,5 +1,6 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
+import dev.jorel.commandapi.arguments.LiteralArgument;
 import io.github.thegatesdev.eventador.core.EventTypes;
 import io.github.thegatesdev.eventador.listener.ListenerManager;
 import io.github.thegatesdev.maple.data.DataElement;
@@ -9,7 +10,6 @@ import io.github.thegatesdev.threshold.PluginEvent;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.witheronia.maze_gm.data.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.modules.command.MazeCommandModule;
-import io.github.thegatesdev.witheronia.maze_gm.modules.generation.maze.MazeGenerationModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import org.bukkit.NamespacedKey;
@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class MazeGamemode extends JavaPlugin {
@@ -65,7 +64,7 @@ public class MazeGamemode extends JavaPlugin {
 
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<>(this).add(
             MazeCommandModule::new, MazeItemModule::new, MazeQuestModule::new
-    ).initialize();
+    );
 
     // PLUGIN
 
@@ -73,9 +72,45 @@ public class MazeGamemode extends JavaPlugin {
 
     // -- PLUGIN
 
-    {
+    @Override
+    public void onLoad() {
+        modules.initialize();
         listenerManager.listen(PlayerJoinEvent.class, (event, type) -> reloadPlayer(event.getPlayer()));
     }
+
+    @Override
+    public void onEnable() {
+        //executorService = Executors.newFixedThreadPool(3);
+        reload();
+    }
+
+    @Override
+    public void onDisable() {
+        modules.disable();
+        if (executorService != null) executorService.shutdown();
+    }
+
+    // -- ERRORS
+
+    public void logError(Collection<Exception> errors) {
+        instanceErrors.addAll(errors);
+    }
+
+    public void logError(Exception error) {
+        instanceErrors.add(error);
+    }
+
+    public void displayErrors(boolean trace) {
+        if (!instanceErrors.isEmpty()) logger.warning("There are active errors...");
+        if (trace) for (final Exception err : instanceErrors) err.printStackTrace();
+        else for (final Exception err : instanceErrors) logger.warning(err.getMessage());
+    }
+
+    public void clearErrors() {
+        instanceErrors.clear();
+    }
+
+    // -- LOADING
 
     public void reload() {
         listenerManager.handleEvents(false);
@@ -150,41 +185,9 @@ public class MazeGamemode extends JavaPlugin {
         inventory.setContents(stacker.itemManager().reloadItems(inventory.getContents()));
     }
 
-    @Override
-    public void onEnable() {
-        executorService = Executors.newFixedThreadPool(3);
-        reload();
-    }
-
-    @Override
-    public void onDisable() {
-        modules.disable();
-        executorService.shutdown();
-    }
-
-
-    public void logError(Collection<Exception> errors) {
-        instanceErrors.addAll(errors);
-    }
-
-    public void logError(Exception error) {
-        instanceErrors.add(error);
-    }
-
-    public void displayErrors(boolean trace) {
-        if (!instanceErrors.isEmpty()) logger.warning("There are active errors...");
-        if (trace) for (final Exception err : instanceErrors) err.printStackTrace();
-        else for (final Exception err : instanceErrors) logger.warning(err.getMessage());
-    }
-
-    public void clearErrors() {
-        instanceErrors.clear();
-    }
-
-
     // -- GET / SET
 
-    public MazeEvents mazeReactors() {
+    public MazeEvents mazeEvents() {
         return mazeEvents;
     }
 
@@ -224,5 +227,9 @@ public class MazeGamemode extends JavaPlugin {
 
     public NamespacedKey key(String id) {
         return new NamespacedKey(this, id);
+    }
+
+    public void addCommand(LiteralArgument argument) {
+        modules.getStatic(MazeCommandModule.class).add(argument);
     }
 }

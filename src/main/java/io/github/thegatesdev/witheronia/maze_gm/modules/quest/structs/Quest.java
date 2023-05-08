@@ -25,7 +25,7 @@ public class Quest implements Identifiable {
     }
 
 
-    public ActiveQuest activate(Player player) {
+    public ActiveQuest createActive(Player player) {
         return new ActiveQuest(this, player);
     }
 
