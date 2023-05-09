@@ -14,6 +14,10 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
         super("commands", moduleManager);
     }
 
+    public void add(LiteralArgument... arguments) {
+        for (LiteralArgument argument : arguments) add(argument);
+    }
+
     public void add(LiteralArgument argument) {
         baseCommand.then(argument);
     }
