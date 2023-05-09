@@ -24,7 +24,6 @@ import static net.kyori.adventure.text.Component.text;
 
 public class ViewOptionsCommand {
     private final Map<String, Component> dataTypeDisplayCache = new HashMap<>();
-    private final Map<String, Map<String, Component>> factoryDisplayCache = new HashMap<>();
     private final EventFactories eventFactories;
 
     public ViewOptionsCommand(EventFactories eventFactories) {
