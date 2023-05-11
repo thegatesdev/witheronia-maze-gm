@@ -1,6 +1,7 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
 import dev.jorel.commandapi.arguments.LiteralArgument;
+import io.github.thegatesdev.actionable.Factories;
 import io.github.thegatesdev.eventador.core.EventTypes;
 import io.github.thegatesdev.eventador.listener.ListenerManager;
 import io.github.thegatesdev.maple.data.DataElement;
@@ -54,7 +55,7 @@ public class MazeGamemode extends JavaPlugin {
 
     private final EventTypes eventTypes = new EventTypes();
     private final ListenerManager listenerManager = new ListenerManager(this, eventTypes);
-    private final MazeEvents mazeEvents = new MazeEvents(eventTypes);
+    private final MazeEvents mazeEvents = Factories.add(new MazeEvents(eventTypes));
 
     // CONNECTIONS
 
