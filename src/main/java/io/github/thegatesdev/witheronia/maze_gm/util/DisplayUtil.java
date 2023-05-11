@@ -10,7 +10,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DisplayUtil {
     public static final Style BLOCK_BORDER_STYLE = Style.style().color(NamedTextColor.GREEN).build();
@@ -30,17 +29,17 @@ public class DisplayUtil {
     }
 
     public static Component displayReadableOptions(ReadableOptions readableData) {
-        final Map<String, ReadableOptions.Entry<?>> entries = readableData.getEntries();
+        final var entries = readableData.entries();
         final List<Component> out = new ArrayList<>(entries.size());
-        entries.forEach((s, entry) -> {
-            final String id = entry.dataType().id();
+        for (var entry : entries) {
+            final String dataTypeId = entry.id();
             out.add(Component.text()
-                    .append(Component.text(s + ": ", VAR_STYLE))
-                    .append(id == null ? Component.text("unknown ", FAIL_STYLE) : Component.text(id + " ", VAR_VAL_STYLE))
-                    .append(entry.hasDefault() ? entry.getDefaultValue() == null ? Component.text("optional", EMPHASIS_STYLE) : Component.text("default: " + entry.getDefaultValue(), EMPHASIS_STYLE) : Component.text("required", EMPHASIS_STYLE))
+                    .append(Component.text(entry.key() + ": ", VAR_STYLE))
+                    .append(dataTypeId == null ? Component.text("unknown ", FAIL_STYLE) : Component.text(dataTypeId + " ", VAR_VAL_STYLE))
+                    .append(entry.hasDefault() ? entry.defaultValue() == null ? Component.text("optional", EMPHASIS_STYLE) : Component.text("default: " + entry.defaultValue(), EMPHASIS_STYLE) : Component.text("required", EMPHASIS_STYLE))
                     .build()
             );
-        });
+        }
         return Component.join(JoinConfiguration.newlines(), out);
     }
 }
