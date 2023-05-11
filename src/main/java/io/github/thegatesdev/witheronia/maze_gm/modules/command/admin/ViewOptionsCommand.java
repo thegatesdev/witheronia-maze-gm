@@ -23,6 +23,10 @@ import static net.kyori.adventure.text.Component.text;
 
 public class ViewOptionsCommand implements Cached {
 
+    private final LiteralArgument viewOptionsCommand = (LiteralArgument) new LiteralArgument("view")
+            .then(dataTypeInfoArg())
+            .then(factoriesArg());
+
     private final Map<String, Component> dataTypeDisplayCache = new HashMap<>();
 
     private LiteralArgument dataTypeInfoArg() {
@@ -112,9 +116,7 @@ public class ViewOptionsCommand implements Cached {
 
 
     public LiteralArgument get() {
-        return (LiteralArgument) new LiteralArgument("view")
-                .then(dataTypeInfoArg())
-                .then(factoriesArg());
+        return viewOptionsCommand;
     }
 
     @Override
