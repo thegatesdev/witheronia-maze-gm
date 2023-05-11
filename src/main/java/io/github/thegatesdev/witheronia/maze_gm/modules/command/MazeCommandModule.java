@@ -27,7 +27,7 @@ public class MazeCommandModule extends PluginModule<MazeGamemode> {
 
     @Override
     protected void onInitialize() {
-        add(new ViewOptionsCommand(plugin.mazeEvents()).get());
+        add(plugin.registerCached(new ViewOptionsCommand()).get());
     }
 
     @Override

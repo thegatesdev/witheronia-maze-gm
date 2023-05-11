@@ -9,6 +9,7 @@ import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.stacker.Stacker;
 import io.github.thegatesdev.threshold.PluginEvent;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
+import io.github.thegatesdev.witheronia.maze_gm.core.Cached;
 import io.github.thegatesdev.witheronia.maze_gm.data.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.modules.command.MazeCommandModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
@@ -21,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -70,6 +72,7 @@ public class MazeGamemode extends JavaPlugin {
     // PLUGIN
 
     private final List<Exception> instanceErrors = new ArrayList<>();
+    private final List<WeakReference<Cached>> cachedComponents = new ArrayList<>();
 
     // -- PLUGIN
 
@@ -118,7 +121,11 @@ public class MazeGamemode extends JavaPlugin {
         try {
             configurationData = getConfigData();
 
+            // Unload
             modules.unload();
+            clearCache();
+
+            // Load
             loadDataFiles();
             modules.load();
 
@@ -134,6 +141,14 @@ public class MazeGamemode extends JavaPlugin {
         modules.enable();
 
         listenerManager.handleEvents(true);
+    }
+
+    private void clearCache() {
+        for (var iterator = cachedComponents.iterator(); iterator.hasNext(); ) {
+            var cachedComponent = iterator.next().get();
+            if (cachedComponent == null) iterator.remove();
+            else cachedComponent.clearCache();
+        }
     }
 
     private void loadDataFiles() {
@@ -232,5 +247,10 @@ public class MazeGamemode extends JavaPlugin {
 
     public void addCommand(LiteralArgument argument) {
         modules.getStatic(MazeCommandModule.class).add(argument);
+    }
+
+    public <T extends Cached> T registerCached(T cachedComponent) {
+        cachedComponents.add(new WeakReference<>(cachedComponent));
+        return cachedComponent;
     }
 }
