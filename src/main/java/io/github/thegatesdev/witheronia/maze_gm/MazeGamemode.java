@@ -51,8 +51,8 @@ public class MazeGamemode extends JavaPlugin {
     private final Path dataPath = getDataFolder().toPath();
     private final Path configFile = dataPath.resolve("config.yml");
 
-    private DataMap configurationData = getConfigData();
-    private final DataMap staticSettings = configurationData == null ? new DataMap() : configurationData.getMap("settings", new DataMap());
+    private DataMap configurationData;
+    private DataMap settings;
 
     // GLOBAL
 
@@ -121,6 +121,7 @@ public class MazeGamemode extends JavaPlugin {
         listenerManager.handleEvents(false);
         try {
             configurationData = getConfigData();
+            settings = configurationData == null ? new DataMap() : configurationData.getMap("settings", new DataMap());
 
             // Unload
             modules.unload();
@@ -137,7 +138,7 @@ public class MazeGamemode extends JavaPlugin {
             logger.warning("Modules will not be enabled...");
             return;
         }
-        displayErrors(false);
+        displayErrors(settings.getBoolean("error_stacktrace", false));
 
         modules.enable();
 
@@ -214,6 +215,10 @@ public class MazeGamemode extends JavaPlugin {
 
     public ModuleManager<MazeGamemode> modules() {
         return modules;
+    }
+
+    public DataMap settings() {
+        return settings;
     }
 
     public ListenerManager listenerManager() {
