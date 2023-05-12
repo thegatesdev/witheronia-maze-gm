@@ -63,9 +63,6 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> {
         return false;
     }
 
-    // -- INTERNAL
-
-
     // COMMANDS
 
     private LiteralArgument command() {
