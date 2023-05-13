@@ -213,6 +213,10 @@ public class MazeGamemode extends JavaPlugin {
         return mazeEvents;
     }
 
+    public WitheroniaCommand witheroniaCommand() {
+        return witheroniaCommand;
+    }
+
     public EventTypes eventTypes() {
         return eventTypes;
     }

@@ -45,7 +45,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     protected void onInitialize() {
         plugin.EVENT_LOAD_DATAFILE.bind(this::onDataFileLoad);
         plugin.stacker().itemManager().addGroup(mazeItemGroup);
-        plugin.addCommand(command());
+        plugin.witheroniaCommand().add(command());
     }
 
     @Override
@@ -58,6 +58,16 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     @Override
     protected void onLoad() {
         pollLoaded();
+    }
+
+    @Override
+    protected void onEnable() {
+        mazeItemListeners.enable();
+    }
+
+    @Override
+    protected void onDisable() {
+        mazeItemListeners.disable();
     }
 
     // -- LOADING
@@ -84,7 +94,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
 
     private void register(MazeItemFactory.ReadItem item) {
         mazeItemGroup.register(item.display());
-        for (var listener : item.listeners()) mazeItemListeners.listen(item.id(), listener);
+        for (var listener : item.listeners()) onItemEvent(item.id(), listener);
     }
 
     public MazeItemModule register(CustomItem customItem) {
@@ -92,14 +102,14 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
         return this;
     }
 
-    public <E extends Event> MazeItemModule registerEvent(String itemId, EventType<E> eventType, StaticListener<E> listener) {
+    public <E extends Event> MazeItemModule onItemEvent(String itemId, EventType<E> eventType, StaticListener<E> listener) {
         if (!mazeItemGroup.itemKeys().contains(itemId)) throw new RuntimeException("Cannot listen to non-existent item " + itemId);
         mazeItemListeners.listen(itemId, eventType, listener);
         return this;
     }
 
-    public <E extends Event, L extends StaticListener<E> & EventTypeHolder<E>> MazeItemModule registerEvent(String itemId, L listener) {
-        return registerEvent(itemId, listener.eventType(), listener);
+    public <E extends Event, L extends StaticListener<E> & EventTypeHolder<E>> MazeItemModule onItemEvent(String itemId, L listener) {
+        return onItemEvent(itemId, listener.eventType(), listener);
     }
 
     // -- COMMAND
@@ -115,6 +125,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     }
 
     private int handleGiveCommand(String itemId, CommandSender sender, Player toGive) {
+        assertEnabled();
         var itemStack = mazeItemGroup.getStack(itemId);
         if (itemStack == null) {
             sender.sendMessage(Component.text("Could not find item " + itemId + "!", DisplayUtil.FAIL_STYLE));

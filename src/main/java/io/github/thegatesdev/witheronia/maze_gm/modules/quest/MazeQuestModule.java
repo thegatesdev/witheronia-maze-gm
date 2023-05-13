@@ -35,6 +35,8 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> {
             .add(BlockBreakEvent.class, BlockBreakEvent::getPlayer);
     private final EventSet eventSet = EventSet.mimic(questData.questEvents());
 
+    private final DynamicListener listener = DynamicListener.of(eventSet, this::onPlayerQuestEvent);
+
     public MazeQuestModule(ModuleManager<MazeGamemode> moduleManager) {
         super("quests", moduleManager);
     }
@@ -43,11 +45,20 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> {
 
     @Override
     protected void onInitialize() {
-        plugin.listenerManager().listen(DynamicListener.of(eventSet, this::onPlayerQuestEvent));
-        plugin.addCommand(command());
+        plugin.witheroniaCommand().add(command());
     }
 
-    // -- QUESTS
+    @Override
+    protected void onEnable() {
+        plugin.listenerManager().listen(listener);
+    }
+
+    @Override
+    protected void onDisable() {
+        plugin.listenerManager().stop(listener);
+    }
+
+    // -- QUEST
 
     private <E extends Event> boolean onPlayerQuestEvent(E event, EventType<E> eventType) {
         playerQuestEvents.each(eventType, event, player -> {
@@ -63,14 +74,14 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> {
         return false;
     }
 
-    // COMMANDS
+    // COMMAND
 
     private LiteralArgument command() {
         return (LiteralArgument) new LiteralArgument("quest")
-                .then(commandActivate());
+                .then(argActivate());
     }
 
-    private LiteralArgument commandActivate() {
+    private LiteralArgument argActivate() {
         return (LiteralArgument) new LiteralArgument("activate")
                 .then(new StringArgument("quest_id")
                         .executesPlayer((PlayerResultingCommandExecutor) (sender, args) ->
@@ -88,6 +99,7 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> {
     }
 
     private int handleActivateQuestCommand(CommandSender sender, Player forPlayer, String questId, boolean force) {
+        assertEnabled();
         Quest quest = questData.getQuest(questId);
         if (quest == null) {
             sender.sendMessage(Component.text("Could not find quest " + questId + "!", DisplayUtil.FAIL_STYLE));
