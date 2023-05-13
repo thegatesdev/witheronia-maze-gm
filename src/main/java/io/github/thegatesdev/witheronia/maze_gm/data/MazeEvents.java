@@ -18,20 +18,21 @@ import static io.github.thegatesdev.actionable.Factories.*;
 public class MazeEvents extends EventFactories {
     public MazeEvents(EventTypes eventTypes) {
         super(eventTypes);
-        load();
     }
 
-    private void load() {
+    {
         eachFactory(EntityEvent.class, r -> r.addPerformer("entity", EntityEvent::getEntity, ENTITY_CONDITION, ENTITY_ACTION));
         eachFactory(PlayerEvent.class, r -> r.addPerformer("player", PlayerEvent::getPlayer, ENTITY_CONDITION, ENTITY_ACTION));
-        eachFactory(EntityDamageEvent.class, r -> r.addPerformer("combined", e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()), e -> e instanceof EntityDamageByEntityEvent, ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
 
-        eachFactory(PlayerInteractEvent.class, eventFactory -> {
+        eachFactory(EntityDamageEvent.class, r -> r.addPerformer("combined",
+                e -> Twin.of(e.getEntity(), ((EntityDamageByEntityEvent) e).getDamager()),
+                e -> e instanceof EntityDamageByEntityEvent, ENTITY_ENTITY_CONDITION, ENTITY_ENTITY_ACTION));
 
-            eventFactory.readableOptions()
+        eachFactory(PlayerInteractEvent.class, r -> {
+            r.readableOptions()
                     .add("click_type", Readable.enumeration(ClickType.class), ClickType.ANY)
                     .add("click_location", Readable.enumeration(ClickLocation.class), ClickLocation.ANY);
-            eventFactory.addStaticCondition((data, e) -> {
+            r.addStaticCondition((data, e) -> {
                 final Action action = e.getAction();
                 return data.<ClickType>getUnsafe("click_type").compare(action) &&
                         data.<ClickLocation>getUnsafe("click_location").compare(action);

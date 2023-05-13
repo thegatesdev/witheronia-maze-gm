@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.command.admin;
+package io.github.thegatesdev.witheronia.maze_gm.command.witheronia.args;
 
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.LiteralArgument;

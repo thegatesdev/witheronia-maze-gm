@@ -1,6 +1,5 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
-import dev.jorel.commandapi.arguments.LiteralArgument;
 import io.github.thegatesdev.actionable.Factories;
 import io.github.thegatesdev.eventador.Eventador;
 import io.github.thegatesdev.eventador.core.EventTypes;
@@ -10,9 +9,9 @@ import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.stacker.Stacker;
 import io.github.thegatesdev.threshold.PluginEvent;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
+import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.WitheroniaCommand;
 import io.github.thegatesdev.witheronia.maze_gm.core.Cached;
 import io.github.thegatesdev.witheronia.maze_gm.data.MazeEvents;
-import io.github.thegatesdev.witheronia.maze_gm.modules.command.MazeCommandModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import org.bukkit.NamespacedKey;
@@ -67,8 +66,12 @@ public class MazeGamemode extends JavaPlugin {
     // MODULES
 
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<>(this).add(
-            MazeCommandModule::new, MazeItemModule::new, MazeQuestModule::new
+            MazeItemModule::new, MazeQuestModule::new
     );
+
+    // COMMANDS
+
+    private final WitheroniaCommand witheroniaCommand = new WitheroniaCommand(this);
 
     // PLUGIN
 
@@ -80,6 +83,7 @@ public class MazeGamemode extends JavaPlugin {
     @Override
     public void onLoad() {
         modules.initialize();
+        witheroniaCommand.register();
         listenerManager.listen(PlayerJoinEvent.class, (event, type) -> reloadPlayer(event.getPlayer()));
     }
 
@@ -249,10 +253,6 @@ public class MazeGamemode extends JavaPlugin {
 
     public NamespacedKey key(String id) {
         return new NamespacedKey(this, id);
-    }
-
-    public void addCommand(LiteralArgument argument) {
-        modules.getStatic(MazeCommandModule.class).add(argument);
     }
 
     public <T extends Cached> T registerCached(T cachedComponent) {
