@@ -12,6 +12,10 @@ public class ModuleCommand {
 
     private final LiteralArgument moduleCommand = new LiteralArgument("module");
 
+    public ModuleCommand(ModuleManager<?> moduleManager) {
+        moduleCommand.then(enableDisableArg(moduleManager));
+    }
+
     private MultiLiteralArgument enableDisableArg(ModuleManager<?> moduleManager) {
         return (MultiLiteralArgument) new MultiLiteralArgument("enable", "disable")
                 .then(new StringArgument("module_id")
