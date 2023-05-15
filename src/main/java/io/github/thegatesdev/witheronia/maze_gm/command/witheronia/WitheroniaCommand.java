@@ -4,9 +4,11 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.args.ModuleCommand;
+import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.args.ReloadCommand;
 import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.args.ViewOptionsCommand;
+import io.github.thegatesdev.witheronia.maze_gm.core.Cached;
 
-public class WitheroniaCommand {
+public class WitheroniaCommand implements Cached {
     private final CommandTree baseCommand = new CommandTree("witheronia").withAliases("wt");
     private final MazeGamemode mazeGamemode;
 
@@ -17,8 +19,9 @@ public class WitheroniaCommand {
     }
 
     private void load() {
-        add(mazeGamemode.registerCached(new ViewOptionsCommand()).get());
-        add(new ModuleCommand().get());
+        add(ViewOptionsCommand.create());
+        add(ModuleCommand.create(mazeGamemode.modules()));
+        add(ReloadCommand.create(mazeGamemode));
     }
 
 
@@ -37,5 +40,10 @@ public class WitheroniaCommand {
         load();
         canModify = false;
         baseCommand.register();
+    }
+
+    @Override
+    public void clearCache() {
+        ViewOptionsCommand.clearCache();
     }
 }

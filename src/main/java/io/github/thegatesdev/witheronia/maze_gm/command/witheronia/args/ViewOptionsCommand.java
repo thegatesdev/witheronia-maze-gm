@@ -7,7 +7,6 @@ import dev.jorel.commandapi.executors.CommandExecutor;
 import io.github.thegatesdev.actionable.Factories;
 import io.github.thegatesdev.mapletree.data.ReadableOptionsHolder;
 import io.github.thegatesdev.mapletree.registry.DataTypeInfo;
-import io.github.thegatesdev.witheronia.maze_gm.core.Cached;
 import io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -21,15 +20,17 @@ import java.util.stream.Collectors;
 import static io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil.*;
 import static net.kyori.adventure.text.Component.text;
 
-public class ViewOptionsCommand implements Cached {
+public class ViewOptionsCommand {
 
-    private final LiteralArgument viewOptionsCommand = (LiteralArgument) new LiteralArgument("view")
-            .then(dataTypeInfoArg())
-            .then(factoriesArg());
+    private static final Map<String, Component> dataTypeDisplayCache = new HashMap<>();
 
-    private final Map<String, Component> dataTypeDisplayCache = new HashMap<>();
+    public static LiteralArgument create() {
+        return (LiteralArgument) new LiteralArgument("view")
+                .then(dataTypeInfoArg())
+                .then(factoriesArg());
+    }
 
-    private LiteralArgument dataTypeInfoArg() {
+    private static LiteralArgument dataTypeInfoArg() {
         return (LiteralArgument) new LiteralArgument("datatype")
                 .executes((sender, args) -> {
                     sender.sendMessage(DisplayUtil.displayBlock(text("Available dataTypes"), text(String.join("\n", DataTypeInfo.keys()), VAR_VAL_STYLE)));
@@ -49,7 +50,7 @@ public class ViewOptionsCommand implements Cached {
                 );
     }
 
-    private Component displayDataTypeInfo(DataTypeInfo<?, ?> info) {
+    private static Component displayDataTypeInfo(DataTypeInfo<?, ?> info) {
         var key = info.dataType().id();
         var toDisplay = new ArrayList<Component>();
 
@@ -83,7 +84,7 @@ public class ViewOptionsCommand implements Cached {
         return DisplayUtil.displayBlock(text("DataType " + key), Component.join(JoinConfiguration.newlines(), toDisplay));
     }
 
-    private LiteralArgument factoriesArg() {
+    private static LiteralArgument factoriesArg() {
         return (LiteralArgument) new LiteralArgument("factory").executes((sender, args) -> {
             sender.sendMessage(DisplayUtil.displayBlock(text("Available factory registries"), text(String.join("\n", Factories.keys()), VAR_VAL_STYLE)));
         }).then(new StringArgument("factory_id")
@@ -97,13 +98,13 @@ public class ViewOptionsCommand implements Cached {
                 ));
     }
 
-    private Component displayFactory(String factoryId) {
+    private static Component displayFactory(String factoryId) {
         var factoryRegistry = Factories.get(factoryId);
         if (factoryRegistry == null) return text("Unknown factory registry " + factoryId, FAIL_STYLE);
         return DisplayUtil.displayBlock(text("Available factories"), text(String.join("\n", factoryRegistry.keys()), VAR_VAL_STYLE));
     }
 
-    private Component displayFactoryEntry(String factoryId, String factoryEntryId) {
+    private static Component displayFactoryEntry(String factoryId, String factoryEntryId) {
         var factoryRegistry = Factories.get(factoryId);
         if (factoryRegistry == null) return text("Unknown factory registry " + factoryId, FAIL_STYLE);
         ReadableOptionsHolder optionsHolder = factoryRegistry.get(factoryEntryId);
@@ -114,13 +115,7 @@ public class ViewOptionsCommand implements Cached {
         );
     }
 
-
-    public LiteralArgument get() {
-        return viewOptionsCommand;
-    }
-
-    @Override
-    public void clearCache() {
+    public static void clearCache() {
         dataTypeDisplayCache.clear();
     }
 }

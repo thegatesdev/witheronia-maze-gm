@@ -8,15 +8,14 @@ import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil;
 import net.kyori.adventure.text.Component;
 
-public class ModuleCommand {
+public final class ModuleCommand {
 
-    private final LiteralArgument moduleCommand = new LiteralArgument("module");
-
-    public ModuleCommand(ModuleManager<?> moduleManager) {
-        moduleCommand.then(enableDisableArg(moduleManager));
+    public static LiteralArgument create(ModuleManager<?> moduleManager) {
+        return (LiteralArgument) new LiteralArgument("module")
+                .then(enableDisableArg(moduleManager));
     }
 
-    private MultiLiteralArgument enableDisableArg(ModuleManager<?> moduleManager) {
+    private static MultiLiteralArgument enableDisableArg(ModuleManager<?> moduleManager) {
         return (MultiLiteralArgument) new MultiLiteralArgument("enable", "disable")
                 .then(new StringArgument("module_id")
                         .replaceSuggestions(ArgumentSuggestions.stringCollection(i -> moduleManager.moduleKeys()))
@@ -35,9 +34,5 @@ public class ModuleCommand {
                                 sender.sendMessage(Component.text("Disabled module " + moduleId, DisplayUtil.SUCCEED_STYLE));
                             }
                         }));
-    }
-
-    public LiteralArgument get() {
-        return moduleCommand;
     }
 }
