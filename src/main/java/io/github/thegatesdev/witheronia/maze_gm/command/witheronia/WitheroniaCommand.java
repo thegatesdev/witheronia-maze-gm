@@ -3,6 +3,7 @@ package io.github.thegatesdev.witheronia.maze_gm.command.witheronia;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
+import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.args.ModuleCommand;
 import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.args.ViewOptionsCommand;
 
 public class WitheroniaCommand {
@@ -12,6 +13,7 @@ public class WitheroniaCommand {
 
     public WitheroniaCommand(MazeGamemode mazeGamemode) {
         add(mazeGamemode.registerCached(new ViewOptionsCommand()).get());
+        add(new ModuleCommand().get());
     }
 
 
