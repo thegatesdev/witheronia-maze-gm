@@ -8,10 +8,15 @@ import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.args.ViewOpti
 
 public class WitheroniaCommand {
     private final CommandTree baseCommand = new CommandTree("witheronia").withAliases("wt");
+    private final MazeGamemode mazeGamemode;
 
     private boolean canModify = true;
 
     public WitheroniaCommand(MazeGamemode mazeGamemode) {
+        this.mazeGamemode = mazeGamemode;
+    }
+
+    private void load() {
         add(mazeGamemode.registerCached(new ViewOptionsCommand()).get());
         add(new ModuleCommand().get());
     }
@@ -29,6 +34,7 @@ public class WitheroniaCommand {
 
 
     public void register() {
+        load();
         canModify = false;
         baseCommand.register();
     }
