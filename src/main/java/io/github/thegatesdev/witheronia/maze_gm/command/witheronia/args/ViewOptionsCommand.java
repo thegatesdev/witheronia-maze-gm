@@ -62,8 +62,7 @@ public class ViewOptionsCommand {
 
         if (info.representation() != null)
             toDisplay.add(text().append(
-                    text("Use: ", EMPHASIS_STYLE),
-                    text(key + "_option: ", VAR_STYLE),
+                    text("Representation: ", EMPHASIS_STYLE),
                     text(info.representation(), VAR_VAL_STYLE)).build());
 
         if (info.possibleValues() != null) {
@@ -72,7 +71,7 @@ public class ViewOptionsCommand {
             toDisplay.add(text().append(
                     text("Possible values: ", EMPHASIS_STYLE),
                     text(String.join(", ", Arrays.copyOf(possibleValues, maxLen)) +
-                                    (possibleValues.length > maxLen ? " and" + (possibleValues.length - maxLen) + " more..." : ""),
+                                    (possibleValues.length > maxLen ? " and " + (possibleValues.length - maxLen) + " more..." : ""),
                             VAR_VAL_STYLE)).build());
         }
 
