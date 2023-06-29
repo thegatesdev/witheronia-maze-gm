@@ -46,12 +46,10 @@ public class MazeItemFactory implements Factory<MazeItemFactory.ReadItem>, Reada
         final MetaBuilder builder = new MetaBuilder(options.getObject("material", Material.class));
         options.ifValue("name", val -> builder.name(val.valueUnsafe()));
         options.ifValue("lore", val -> builder.lore(val.<List<Component>>valueUnsafe()));
-        options.ifList("flags", elements -> {
-            elements.each(element -> {
-                final ItemFlag flag = Threshold.enumGet(ItemFlag.class, element.requireOf(DataValue.class).stringValue());
-                if (flag != null) builder.flag(flag);
-            });
-        });
+        options.ifList("flags", elements -> elements.each(element -> {
+            final ItemFlag flag = Threshold.enumGet(ItemFlag.class, element.requireOf(DataValue.class).stringValue());
+            if (flag != null) builder.flag(flag);
+        }));
         return new ReadItem(itemId, new CustomItem(itemId, builder), options.getUnsafe("reactors", Collections.emptyList()));
     }
 
