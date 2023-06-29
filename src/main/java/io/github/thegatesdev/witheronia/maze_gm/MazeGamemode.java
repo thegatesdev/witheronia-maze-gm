@@ -125,12 +125,13 @@ public class MazeGamemode extends JavaPlugin {
     public void reload() {
         listenerManager.handleEvents(false);
         try {
-            configurationData = getConfigData();
-            settings = configurationData == null ? new DataMap() : configurationData.getMap("settings", new DataMap());
-
             // Unload
             modules.unload();
             clearCache();
+
+            // Reload settings and config data
+            configurationData = getConfigData();
+            settings = configurationData == null ? new DataMap() : configurationData.getMap("settings", new DataMap());
 
             // Load
             loadDataFiles();
