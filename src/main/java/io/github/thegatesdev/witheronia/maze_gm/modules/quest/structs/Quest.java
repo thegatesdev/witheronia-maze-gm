@@ -1,7 +1,7 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs;
 
 import io.github.thegatesdev.eventador.core.EventType;
-import io.github.thegatesdev.mapletree.registry.Identifiable;
+import io.github.thegatesdev.maple.registry.struct.Identifiable;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;

@@ -3,11 +3,12 @@ package io.github.thegatesdev.witheronia.maze_gm.modules.item;
 import io.github.thegatesdev.actionable.EventFactories;
 import io.github.thegatesdev.actionable.factory.EventFactory;
 import io.github.thegatesdev.maple.data.DataMap;
-import io.github.thegatesdev.mapletree.data.Factory;
-import io.github.thegatesdev.mapletree.data.Readable;
-import io.github.thegatesdev.mapletree.data.ReadableOptions;
-import io.github.thegatesdev.mapletree.data.ReadableOptionsHolder;
-import io.github.thegatesdev.mapletree.registry.Identifiable;
+import io.github.thegatesdev.maple.data.DataValue;
+import io.github.thegatesdev.maple.read.Readable;
+import io.github.thegatesdev.maple.read.ReadableOptions;
+import io.github.thegatesdev.maple.read.struct.ReadableOptionsHolder;
+import io.github.thegatesdev.maple.registry.struct.Factory;
+import io.github.thegatesdev.maple.registry.struct.Identifiable;
 import io.github.thegatesdev.stacker.CustomItem;
 import io.github.thegatesdev.stacker.MetaBuilder;
 import io.github.thegatesdev.threshold.Threshold;
@@ -24,10 +25,10 @@ public class MazeItemFactory implements Factory<MazeItemFactory.ReadItem>, Reada
 
     private final ReadableOptions itemOptions = new ReadableOptions()
             .add("material", Readable.enumeration(Material.class))
-            .add("id", Readable.primitive(String.class))
-            .add("name", COLORED_STRING, null)
-            .add("lore", COLORED_STRING.list(), null)
-            .add("flags", Readable.primitive(String.class).list(), null);
+            .add("id", Readable.string())
+            .addOptional("name", COLORED_STRING)
+            .addOptional("lore", COLORED_STRING.list())
+            .addOptional("flags", Readable.string().list());
 
     public MazeItemFactory(EventFactories eventFactories) {
         itemOptions.add("reactors", eventFactories.list());
@@ -42,14 +43,14 @@ public class MazeItemFactory implements Factory<MazeItemFactory.ReadItem>, Reada
     public ReadItem build(final DataMap data) {
         final DataMap options = itemOptions.read(data);
         final String itemId = options.getString("id");
-        final MetaBuilder builder = new MetaBuilder(options.get("material", Material.class));
-        options.ifPrimitive("name", primitive -> builder.name(primitive.valueUnsafe()));
-        options.ifPrimitive("lore", primitive -> builder.lore(primitive.<List<Component>>valueUnsafe()));
+        final MetaBuilder builder = new MetaBuilder(options.getObject("material", Material.class));
+        options.ifValue("name", val -> builder.name(val.valueUnsafe()));
+        options.ifValue("lore", val -> builder.lore(val.<List<Component>>valueUnsafe()));
         options.ifList("flags", elements -> {
-            for (final String s : elements.primitiveList(String.class)) {
-                final ItemFlag flag = Threshold.enumGet(ItemFlag.class, s);
+            elements.each(element -> {
+                final ItemFlag flag = Threshold.enumGet(ItemFlag.class, element.requireOf(DataValue.class).stringValue());
                 if (flag != null) builder.flag(flag);
-            }
+            });
         });
         return new ReadItem(itemId, new CustomItem(itemId, builder), options.getUnsafe("reactors", Collections.emptyList()));
     }

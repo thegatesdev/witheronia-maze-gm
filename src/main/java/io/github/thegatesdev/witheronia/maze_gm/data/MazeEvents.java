@@ -3,7 +3,7 @@ package io.github.thegatesdev.witheronia.maze_gm.data;
 import io.github.thegatesdev.actionable.EventFactories;
 import io.github.thegatesdev.actionable.util.twin.Twin;
 import io.github.thegatesdev.eventador.core.EventTypes;
-import io.github.thegatesdev.mapletree.data.Readable;
+import io.github.thegatesdev.maple.read.Readable;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickLocation;
 import io.github.thegatesdev.witheronia.maze_gm.util.spigot.ClickType;
 import org.bukkit.event.block.Action;

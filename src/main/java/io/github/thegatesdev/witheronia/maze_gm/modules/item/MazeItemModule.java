@@ -10,7 +10,6 @@ import io.github.thegatesdev.eventador.core.EventType;
 import io.github.thegatesdev.eventador.listener.stat.EventTypeHolder;
 import io.github.thegatesdev.eventador.listener.stat.StaticListener;
 import io.github.thegatesdev.eventador.util.MappedListeners;
-import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.stacker.CustomItem;
 import io.github.thegatesdev.stacker.ItemGroup;
@@ -79,15 +78,13 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     }
 
     private void onDataFileLoad(MazeGamemode.LoadDataFileInfo info) {
-        info.data().ifList("maze_items", list -> {
-            for (DataElement el : list) {
-                if (el.isMap()) try {
-                    loadedItems.add(mazeItemFactory.build(el.asMap()));
-                } catch (ElementException e) {
-                    plugin.logError(e);
-                }
+        info.data().ifList("maze_items", list -> list.each(el -> {
+            if (el.isMap()) try {
+                loadedItems.add(mazeItemFactory.build(el.asMap()));
+            } catch (ElementException e) {
+                plugin.logError(e);
             }
-        });
+        }));
     }
 
     // -- ITEMS

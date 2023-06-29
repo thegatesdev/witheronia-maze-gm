@@ -5,17 +5,16 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandExecutor;
 import io.github.thegatesdev.actionable.Factories;
-import io.github.thegatesdev.mapletree.data.ReadableOptionsHolder;
-import io.github.thegatesdev.mapletree.registry.DataTypeInfo;
+import io.github.thegatesdev.maple.read.struct.DataType;
+import io.github.thegatesdev.maple.read.struct.ReadableOptionsHolder;
 import io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil.*;
 import static net.kyori.adventure.text.Component.text;
@@ -33,25 +32,24 @@ public class ViewOptionsCommand {
     private static LiteralArgument dataTypeInfoArg() {
         return (LiteralArgument) new LiteralArgument("datatype")
                 .executes((sender, args) -> {
-                    sender.sendMessage(DisplayUtil.displayBlock(text("Available dataTypes"), text(String.join("\n", DataTypeInfo.keys()), VAR_VAL_STYLE)));
-                }).then(new StringArgument("datatype_id").replaceSuggestions(ArgumentSuggestions.strings(DataTypeInfo.keys()))
+                    sender.sendMessage(DisplayUtil.displayBlock(text("Available dataTypes"), text(String.join("\n", DataType.Info.keys()), VAR_VAL_STYLE)));
+                }).then(new StringArgument("datatype_id").replaceSuggestions(ArgumentSuggestions.strings(DataType.Info.keys()))
                         .executes((sender, args) -> {
                             // Cached
                             var toSend = dataTypeDisplayCache.computeIfAbsent((String) args.get("datatype_id"), key -> {
-                                final DataTypeInfo<?, ?> info = DataTypeInfo.get(key);
+                                final var info = DataType.Info.of(key);
                                 if (info == null) {
                                     sender.sendMessage(text("Could not find info for datatype " + key + "!", FAIL_STYLE));
                                     return null;
                                 }
-                                return displayDataTypeInfo(info);
+                                return displayDataTypeInfo(key, info);
                             });
                             if (toSend != null) sender.sendMessage(toSend);
                         })
                 );
     }
 
-    private static Component displayDataTypeInfo(DataTypeInfo<?, ?> info) {
-        var key = info.dataType().id();
+    private static Component displayDataTypeInfo(String key, DataType.Info info) {
         var toDisplay = new ArrayList<Component>();
 
         if (info.description() != null)
@@ -69,12 +67,12 @@ public class ViewOptionsCommand {
                     text(info.representation(), VAR_VAL_STYLE)).build());
 
         if (info.possibleValues() != null) {
-            List<String> possibleValues = info.possibleValues();
+            var possibleValues = info.possibleValues();
             int maxLen = 10;
             toDisplay.add(text().append(
                     text("Possible values: ", EMPHASIS_STYLE),
-                    text(possibleValues.stream().limit(maxLen).collect(Collectors.joining(", ")) +
-                                    (possibleValues.size() > maxLen ? " and" + (possibleValues.size() - maxLen) + " more..." : ""),
+                    text(String.join(", ", Arrays.copyOf(possibleValues, maxLen)) +
+                                    (possibleValues.length > maxLen ? " and" + (possibleValues.length - maxLen) + " more..." : ""),
                             VAR_VAL_STYLE)).build());
         }
 

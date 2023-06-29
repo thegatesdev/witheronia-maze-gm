@@ -4,6 +4,7 @@ import io.github.thegatesdev.actionable.Factories;
 import io.github.thegatesdev.eventador.Eventador;
 import io.github.thegatesdev.eventador.core.EventTypes;
 import io.github.thegatesdev.eventador.listener.ListenerManager;
+import io.github.thegatesdev.maple.Maple;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.stacker.Stacker;
@@ -75,7 +76,7 @@ public class MazeGamemode extends JavaPlugin {
 
     // PLUGIN
 
-    private final List<Exception> instanceErrors = new ArrayList<>();
+    private final List<Throwable> instanceErrors = new ArrayList<>();
     private final List<WeakReference<Cached>> cachedComponents = new ArrayList<>();
 
     // -- PLUGIN
@@ -101,18 +102,18 @@ public class MazeGamemode extends JavaPlugin {
 
     // -- ERRORS
 
-    public void logError(Collection<Exception> errors) {
+    public void logError(Collection<Throwable> errors) {
         instanceErrors.addAll(errors);
     }
 
-    public void logError(Exception error) {
+    public void logError(Throwable error) {
         instanceErrors.add(error);
     }
 
     public void displayErrors(boolean trace) {
         if (!instanceErrors.isEmpty()) logger.warning("There are active errors...");
-        if (trace) for (final Exception err : instanceErrors) err.printStackTrace();
-        else for (final Exception err : instanceErrors) logger.warning(err.getMessage());
+        if (trace) for (final Throwable err : instanceErrors) err.printStackTrace();
+        else for (final Throwable err : instanceErrors) logger.warning(err.getMessage());
     }
 
     public void clearErrors() {
@@ -158,12 +159,12 @@ public class MazeGamemode extends JavaPlugin {
     }
 
     private void loadDataFiles() {
-        configurationData().ifPresent(data -> data.ifList("data_files", elements -> elements.forEach(el -> {
-            if (!el.isPrimitive() || !el.asPrimitive().isStringValue()) {
+        configurationData().ifPresent(data -> data.ifList("data_files", elements -> elements.each(el -> {
+            if (!el.isValue() || !el.asValue().valueOf(String.class)) {
                 logger.warning("Invalid data file entry; " + el);
                 return;
             }
-            final String path = el.asPrimitive().stringValue();
+            final String path = el.asValue().stringValue();
             Path itemPath;
             try {
                 itemPath = dataPath.resolve(path);
@@ -179,7 +180,7 @@ public class MazeGamemode extends JavaPlugin {
                 logger.warning("Failed to data file " + fileName + "; " + e.getMessage());
                 return;
             }
-            DataElement.readOf(loaded).ifMap(fileData -> {
+            Maple.read(loaded).ifMap(fileData -> {
                 logger.info("Loading data file " + fileName);
                 EVENT_LOAD_DATAFILE.dispatch(new LoadDataFileInfo(fileData, fileName, itemPath));
             }, () -> logger.warning("Failed to load file " + itemPath.getFileName() + "; not a map"));
@@ -194,7 +195,7 @@ public class MazeGamemode extends JavaPlugin {
             logger.warning("Could not load data config file.");
             return null;
         }
-        final DataElement element = DataElement.readOf(load);
+        final DataElement element = Maple.read(load);
         if (!element.isMap()) {
             logger.warning("Invalid configuration file, should be a map.");
             return null;
