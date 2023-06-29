@@ -1,1 +1,1 @@
-rootProject.name = "witheronia-maze"
+rootProject.name = "witheronia-gamemode-maze"
