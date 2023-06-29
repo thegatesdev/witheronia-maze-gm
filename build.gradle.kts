@@ -23,16 +23,14 @@ sourceSets {
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://jitpack.io")
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
 
     api("com.github.stefvanschie.inventoryframework:IF:0.10.8")
     compileOnly("dev.jorel:commandapi-bukkit-core:9.0.0")
 
-    api("io.github.thegatesdev:maze-generator:1.1")
     compileOnly("io.github.thegatesdev:threshold:0.3")
     compileOnly("io.github.thegatesdev:actionable:1.2")
     compileOnly("io.github.thegatesdev:eventador:1.4.2")
@@ -46,7 +44,7 @@ tasks {
             "name" to project.name,
             "version" to project.version,
             "description" to project.description,
-            "apiVersion" to "1.19"
+            "apiVersion" to "1.20"
         )
         inputs.properties(props)
         filesMatching("plugin.yml") {
@@ -63,7 +61,6 @@ tasks {
         minimize()
         dependencies {
             include(dependency("com.github.stefvanschie.inventoryframework:IF"))
-            include(dependency("io.github.thegatesdev:maze-generator"))
         }
     }
 
