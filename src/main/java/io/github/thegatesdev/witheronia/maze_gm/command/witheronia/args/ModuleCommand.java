@@ -5,14 +5,23 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
-import io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil;
+import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.TextDecoration;
+
+import java.util.ArrayList;
+
+import static io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil.*;
+import static net.kyori.adventure.text.Component.join;
+import static net.kyori.adventure.text.Component.text;
 
 public final class ModuleCommand {
 
     public static LiteralArgument create(ModuleManager<?> moduleManager) {
         return (LiteralArgument) new LiteralArgument("module")
-                .then(enableDisableArg(moduleManager));
+                .then(enableDisableArg(moduleManager))
+                .then(statusArg(moduleManager));
     }
 
     private static MultiLiteralArgument enableDisableArg(ModuleManager<?> moduleManager) {
@@ -23,16 +32,29 @@ public final class ModuleCommand {
                             String moduleId = args.getUnchecked("module_id");
                             var module = moduleManager.get(moduleId);
                             if (module == null) {
-                                sender.sendMessage(Component.text("Could not find module " + moduleId, DisplayUtil.FAIL_STYLE));
+                                sender.sendMessage(text("Could not find module " + moduleId, FAIL_STYLE));
                                 return;
                             }
                             if (args.get("enable") != null) {
                                 module.enable();
-                                sender.sendMessage(Component.text("Enabled module " + moduleId, DisplayUtil.SUCCEED_STYLE));
+                                sender.sendMessage(text("Enabled module " + moduleId, SUCCEED_STYLE));
                             } else {
                                 module.disable();
-                                sender.sendMessage(Component.text("Disabled module " + moduleId, DisplayUtil.SUCCEED_STYLE));
+                                sender.sendMessage(text("Disabled module " + moduleId, SUCCEED_STYLE));
                             }
                         }));
+    }
+
+    private static LiteralArgument statusArg(ModuleManager<?> moduleManager) {
+        return (LiteralArgument) new LiteralArgument("status").executes((sender, args) -> {
+            var collect = new ArrayList<Component>(moduleManager.moduleCount());
+            for (PluginModule<?> module : moduleManager) {
+                var comp = text().append(text(module.id() + ":", VAR_STYLE).appendSpace());
+                if (module.isEnabled()) comp.append(text("enabled", SUCCEED_STYLE.decorate(TextDecoration.ITALIC)));
+                else comp.append(text("disabled", FAIL_STYLE.decorate(TextDecoration.ITALIC)));
+                collect.add(comp.build());
+            }
+            sender.sendMessage(displayBlock(text("Module status"), join(JoinConfiguration.newlines(), collect)));
+        });
     }
 }
