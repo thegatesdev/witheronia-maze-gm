@@ -10,7 +10,9 @@ import io.github.thegatesdev.eventador.core.EventType;
 import io.github.thegatesdev.eventador.listener.stat.EventTypeHolder;
 import io.github.thegatesdev.eventador.listener.stat.StaticListener;
 import io.github.thegatesdev.eventador.util.MappedListeners;
+import io.github.thegatesdev.maple.data.DataValue;
 import io.github.thegatesdev.maple.exception.ElementException;
+import io.github.thegatesdev.maple.read.struct.DataType;
 import io.github.thegatesdev.stacker.CustomItem;
 import io.github.thegatesdev.stacker.ItemGroup;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
@@ -28,11 +30,12 @@ import java.util.List;
 
 public class MazeItemModule extends PluginModule<MazeGamemode> {
 
-    private final MazeItemFactory mazeItemFactory = new MazeItemFactory(plugin.mazeEvents());
+    private final DataType<DataValue<MazeItemBuilder.ReadItem>> itemDataType = MazeItemBuilder.createDataType(plugin.mazeEvents());
+
     private final ItemGroup mazeItemGroup = new ItemGroup("maze_items", plugin.key("maze_item"), true);
     private final MappedListeners<ItemStack, String> mazeItemListeners = new MazeItemListener(plugin.listenerManager(), plugin.eventTypes(), mazeItemGroup);
 
-    private final List<MazeItemFactory.ReadItem> loadedItems = new ArrayList<>();
+    private final List<MazeItemBuilder.ReadItem> loadedItems = new ArrayList<>();
 
     public MazeItemModule(ModuleManager<MazeGamemode> moduleManager) {
         super("items", moduleManager);
@@ -80,7 +83,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     private void onDataFileLoad(MazeGamemode.LoadDataFileInfo info) {
         info.data().ifList("maze_items", list -> list.each(el -> {
             if (el.isMap()) try {
-                loadedItems.add(mazeItemFactory.build(el.asMap()));
+                loadedItems.add(itemDataType.read(el).value());
             } catch (ElementException e) {
                 plugin.logError(e);
             }
@@ -89,7 +92,7 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
 
     // -- ITEMS
 
-    private void register(MazeItemFactory.ReadItem item) {
+    private void register(MazeItemBuilder.ReadItem item) {
         mazeItemGroup.register(item.display());
         for (var listener : item.listeners()) onItemEvent(item.id(), listener);
     }
