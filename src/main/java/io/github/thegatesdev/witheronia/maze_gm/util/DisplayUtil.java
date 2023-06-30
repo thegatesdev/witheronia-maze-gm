@@ -22,7 +22,7 @@ public class DisplayUtil {
 
     public static Component displayBlock(Component title, Component body) {
         return Component.join(JoinConfiguration.newlines(),
-                Component.text("------- ", BLOCK_BORDER_STYLE).append(title.style(TEXT_STYLE)),
+                Component.text("------- ", BLOCK_BORDER_STYLE).append(title.applyFallbackStyle(TEXT_STYLE)),
                 body.applyFallbackStyle(TEXT_STYLE),
                 Component.text("-------", BLOCK_BORDER_STYLE)
         );
