@@ -1,4 +1,5 @@
 name: $name
+prefix: WT-GM-Maze
 version: $version
 author: TheGatesDev
 api-version: $apiVersion

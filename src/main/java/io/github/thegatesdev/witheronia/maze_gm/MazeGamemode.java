@@ -11,7 +11,6 @@ import io.github.thegatesdev.stacker.Stacker;
 import io.github.thegatesdev.threshold.PluginEvent;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.WitheroniaCommand;
-import io.github.thegatesdev.witheronia.maze_gm.core.Cached;
 import io.github.thegatesdev.witheronia.maze_gm.data.MazeEvents;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
@@ -23,7 +22,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -77,7 +75,6 @@ public class MazeGamemode extends JavaPlugin {
     // PLUGIN
 
     private final List<Throwable> instanceErrors = new ArrayList<>();
-    private final List<WeakReference<Cached>> cachedComponents = new ArrayList<>();
 
     // -- PLUGIN
 
@@ -127,7 +124,6 @@ public class MazeGamemode extends JavaPlugin {
         try {
             // Unload
             modules.unload();
-            clearCache();
 
             // Reload settings and config data
             configurationData = getConfigData();
@@ -149,14 +145,6 @@ public class MazeGamemode extends JavaPlugin {
         modules.enable();
 
         listenerManager.handleEvents(true);
-    }
-
-    private void clearCache() {
-        for (var iterator = cachedComponents.iterator(); iterator.hasNext(); ) {
-            var cachedComponent = iterator.next().get();
-            if (cachedComponent == null) iterator.remove();
-            else cachedComponent.clearCache();
-        }
     }
 
     private void loadDataFiles() {
@@ -185,7 +173,7 @@ public class MazeGamemode extends JavaPlugin {
                 logger.info("Loading data file " + fileName);
                 EVENT_LOAD_DATAFILE.dispatch(new LoadDataFileInfo(fileData, fileName, itemPath));
             }, () -> logger.warning("Failed to load file " + itemPath.getFileName() + "; not a map"));
-        }), () -> logger.warning("item_files should be a list of file paths")));
+        }), () -> logger.warning("(config.yml) item_files should be a list of file paths")));
     }
 
     private DataMap getConfigData() {
@@ -193,12 +181,12 @@ public class MazeGamemode extends JavaPlugin {
         try {
             load = yaml.load(Files.newInputStream(configFile));
         } catch (IOException e) {
-            logger.warning("Could not load data config file.");
+            logger.warning("Could not load configuration file (config.yml): " + e.getMessage());
             return null;
         }
         final DataElement element = Maple.read(load);
         if (!element.isMap()) {
-            logger.warning("Invalid configuration file, should be a map.");
+            logger.warning("Invalid configuration file (config.yml), should be a map!");
             return null;
         }
         return element.asMap();
@@ -259,10 +247,5 @@ public class MazeGamemode extends JavaPlugin {
 
     public NamespacedKey key(String id) {
         return new NamespacedKey(this, id);
-    }
-
-    public <T extends Cached> T registerCached(T cachedComponent) {
-        cachedComponents.add(new WeakReference<>(cachedComponent));
-        return cachedComponent;
     }
 }

@@ -111,8 +111,4 @@ public class ViewOptionsCommand {
                 DisplayUtil.displayReadableOptions(optionsHolder.readableOptions())
         );
     }
-
-    public static void clearCache() {
-        dataTypeDisplayCache.clear();
-    }
 }
