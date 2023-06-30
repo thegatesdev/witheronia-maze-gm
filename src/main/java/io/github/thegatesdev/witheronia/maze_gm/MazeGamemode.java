@@ -124,6 +124,7 @@ public class MazeGamemode extends JavaPlugin {
         try {
             // Unload
             modules.unload();
+            if (settings.getBoolean("error_clear_reload", false)) clearErrors();
 
             // Reload settings and config data
             configurationData = getConfigData();
