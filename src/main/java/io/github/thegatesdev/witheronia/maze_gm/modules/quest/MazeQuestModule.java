@@ -99,7 +99,6 @@ public class MazeQuestModule extends PluginModule<MazeGamemode> {
     }
 
     private int handleActivateQuestCommand(CommandSender sender, Player forPlayer, String questId, boolean force) {
-        assertEnabled();
         Quest quest = questData.getQuest(questId);
         if (quest == null) {
             sender.sendMessage(Component.text("Could not find quest " + questId + "!", DisplayUtil.FAIL_STYLE));

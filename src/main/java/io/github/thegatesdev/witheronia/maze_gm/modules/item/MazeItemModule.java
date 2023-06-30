@@ -122,7 +122,6 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
     }
 
     private int handleGiveCommand(String itemId, CommandSender sender, Player toGive) {
-        assertEnabled();
         var itemStack = mazeItemGroup.getStack(itemId);
         if (itemStack == null) {
             sender.sendMessage(Component.text("Could not find item " + itemId + "!", DisplayUtil.FAIL_STYLE));
