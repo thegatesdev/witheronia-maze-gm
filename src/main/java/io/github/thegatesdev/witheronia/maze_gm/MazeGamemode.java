@@ -128,6 +128,8 @@ public class MazeGamemode extends JavaPlugin {
             // Reload settings and config data
             configurationData = getConfigData();
             settings = configurationData == null ? new DataMap() : configurationData.getMap("settings", new DataMap());
+            if (settings.getBoolean("log_config_data", false) && configurationData != null)
+                logger.info(configurationData.toString());
 
             // Load
             loadDataFiles();
@@ -173,7 +175,7 @@ public class MazeGamemode extends JavaPlugin {
                 logger.info("Loading data file " + fileName);
                 EVENT_LOAD_DATAFILE.dispatch(new LoadDataFileInfo(fileData, fileName, itemPath));
             }, () -> logger.warning("Failed to load file " + itemPath.getFileName() + "; not a map"));
-        }), () -> logger.warning("(config.yml) item_files should be a list of file paths")));
+        }), () -> logger.warning("(config.yml) data_files should be a list of file paths")));
     }
 
     private DataMap getConfigData() {
