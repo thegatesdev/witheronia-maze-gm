@@ -2,6 +2,7 @@ package io.github.thegatesdev.witheronia.maze_gm.modules.item;
 
 import io.github.thegatesdev.actionable.EventFactories;
 import io.github.thegatesdev.actionable.factory.EventFactory;
+import io.github.thegatesdev.maple.data.DataList;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.data.DataValue;
 import io.github.thegatesdev.maple.read.Readable;
@@ -45,7 +46,7 @@ public class MazeItemBuilder {
         return new ReadItem(
                 itemId,
                 new CustomItem(itemId, builder),
-                options.getList("reactors").valueListUnsafe()
+                options.getList("reactors", new DataList(0)).valueListUnsafe()
         );
     }
 
