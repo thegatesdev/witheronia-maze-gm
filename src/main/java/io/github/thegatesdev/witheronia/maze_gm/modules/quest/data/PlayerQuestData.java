@@ -19,7 +19,7 @@ public class PlayerQuestData {
     }
 
     public final <O> void activate(Quest quest, Player player) {
-        if (activeIds.add(quest.id())) activeQuests.add(quest.createActive(player));
+        if (activeIds.add(quest.key())) activeQuests.add(quest.createActive(player));
     }
 
     public boolean canActivate(Quest quest) {

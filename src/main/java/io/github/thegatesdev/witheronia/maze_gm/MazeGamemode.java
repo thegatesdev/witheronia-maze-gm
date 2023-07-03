@@ -1,6 +1,5 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
-import io.github.thegatesdev.actionable.Factories;
 import io.github.thegatesdev.eventador.Eventador;
 import io.github.thegatesdev.eventador.core.EventTypes;
 import io.github.thegatesdev.eventador.listener.ListenerManager;
@@ -8,11 +7,9 @@ import io.github.thegatesdev.maple.Maple;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.stacker.Stacker;
-import io.github.thegatesdev.threshold.PluginEvent;
+import io.github.thegatesdev.threshold.event.PluginEvent;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.WitheroniaCommand;
-import io.github.thegatesdev.witheronia.maze_gm.data.MazeEvents;
-import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -56,7 +53,6 @@ public class MazeGamemode extends JavaPlugin {
 
     private final EventTypes eventTypes = Eventador.eventTypes();
     private final ListenerManager listenerManager = new ListenerManager(this, eventTypes);
-    private final MazeEvents mazeEvents = Factories.add(new MazeEvents(eventTypes));
 
     // CONNECTIONS
 
@@ -65,7 +61,7 @@ public class MazeGamemode extends JavaPlugin {
     // MODULES
 
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<>(this).add(
-            MazeItemModule::new, MazeQuestModule::new
+            MazeQuestModule::new
     );
 
     // COMMANDS
@@ -201,10 +197,6 @@ public class MazeGamemode extends JavaPlugin {
     }
 
     // -- GET / SET
-
-    public MazeEvents mazeEvents() {
-        return mazeEvents;
-    }
 
     public WitheroniaCommand witheroniaCommand() {
         return witheroniaCommand;

@@ -26,7 +26,7 @@ public class QuestData {
     }
 
     public QuestData addQuest(Quest quest) {
-        questMap.putIfAbsent(quest.id(), quest);
+        questMap.putIfAbsent(quest.key(), quest);
         questEvents.addAll(quest.listenedEvents());
         return this;
     }

@@ -1,7 +1,7 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs;
 
 import io.github.thegatesdev.eventador.core.EventType;
-import io.github.thegatesdev.maple.registry.struct.Identifiable;
+import io.github.thegatesdev.maple.data.Keyed;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class Quest implements Identifiable {
+public class Quest implements Keyed {
 
     private final String id;
     private final List<Goal<?>> goals = new ArrayList<>();
@@ -69,7 +69,7 @@ public class Quest implements Identifiable {
     }
 
     @Override
-    public String id() {
+    public String key() {
         return id;
     }
 }

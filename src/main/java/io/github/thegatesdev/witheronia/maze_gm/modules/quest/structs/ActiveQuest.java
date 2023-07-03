@@ -59,6 +59,6 @@ public class ActiveQuest {
     }
 
     public String questId() {
-        return quest.id();
+        return quest.key();
     }
 }
