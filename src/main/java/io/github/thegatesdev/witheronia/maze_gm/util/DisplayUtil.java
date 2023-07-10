@@ -22,9 +22,9 @@ public class DisplayUtil {
 
     public static Component displayBlock(Component title, Component body) {
         return Component.join(JoinConfiguration.newlines(),
-                Component.text("------- ", BLOCK_BORDER_STYLE).append(title.applyFallbackStyle(TEXT_STYLE)),
-                body.applyFallbackStyle(TEXT_STYLE),
-                Component.text("-------", BLOCK_BORDER_STYLE)
+            Component.text("------- ", BLOCK_BORDER_STYLE).append(title.applyFallbackStyle(TEXT_STYLE)),
+            body.applyFallbackStyle(TEXT_STYLE),
+            Component.text("-------", BLOCK_BORDER_STYLE)
         );
     }
 
@@ -34,12 +34,20 @@ public class DisplayUtil {
         for (var entry : entries) {
             final String dataTypeId = entry.key();
             out.add(Component.text()
-                    .append(Component.text(entry.key() + ": ", VAR_STYLE))
-                    .append(dataTypeId == null ? Component.text("unknown ", FAIL_STYLE) : Component.text(dataTypeId + " ", VAR_VAL_STYLE))
-                    .append(entry.hasDefault() ? entry.defaultValue() == null ? Component.text("optional", EMPHASIS_STYLE) : Component.text("default: " + entry.defaultValue(), EMPHASIS_STYLE) : Component.text("required", EMPHASIS_STYLE))
-                    .build()
+                .append(Component.text(entry.key() + ": ", VAR_STYLE))
+                .append(dataTypeId == null ? fail("unknown") : Component.text(dataTypeId + " ", VAR_VAL_STYLE))
+                .append(entry.hasDefault() ? entry.defaultValue() == null ? Component.text("optional", EMPHASIS_STYLE) : Component.text("default: " + entry.defaultValue(), EMPHASIS_STYLE) : Component.text("required", EMPHASIS_STYLE))
+                .build()
             );
         }
         return Component.join(JoinConfiguration.newlines(), out);
+    }
+
+    public static Component fail(String text) {
+        return Component.text(text, FAIL_STYLE);
+    }
+
+    public static Component succeed(String text) {
+        return Component.text(text, SUCCEED_STYLE);
     }
 }
