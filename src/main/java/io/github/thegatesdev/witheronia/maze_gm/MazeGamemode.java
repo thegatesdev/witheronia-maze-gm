@@ -1,20 +1,20 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
-import io.github.thegatesdev.eventador.Eventador;
-import io.github.thegatesdev.eventador.core.EventTypes;
-import io.github.thegatesdev.eventador.listener.ListenerManager;
+import io.github.thegatesdev.eventador.listener.BukkitListeners;
+import io.github.thegatesdev.eventador.listener.struct.Listeners;
 import io.github.thegatesdev.maple.Maple;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.stacker.Stacker;
+import io.github.thegatesdev.stacker.item.ItemManager;
 import io.github.thegatesdev.threshold.event.PluginEvent;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.WitheroniaCommand;
+import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
 import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
@@ -51,8 +51,7 @@ public class MazeGamemode extends JavaPlugin {
 
     // GLOBAL
 
-    private final EventTypes eventTypes = Eventador.eventTypes();
-    private final ListenerManager listenerManager = new ListenerManager(this, eventTypes);
+    private final Listeners listeners = new BukkitListeners(this);
 
     // CONNECTIONS
 
@@ -61,7 +60,7 @@ public class MazeGamemode extends JavaPlugin {
     // MODULES
 
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<>(this).add(
-            MazeQuestModule::new
+        MazeQuestModule::new, MazeItemModule::new
     );
 
     // COMMANDS
@@ -78,7 +77,7 @@ public class MazeGamemode extends JavaPlugin {
     public void onLoad() {
         modules.initialize();
         witheroniaCommand.register();
-        listenerManager.listen(PlayerJoinEvent.class, (event, type) -> reloadPlayer(event.getPlayer()));
+        listeners.listen(PlayerJoinEvent.class, event -> reloadPlayer(event.getPlayer()));
     }
 
     @Override
@@ -116,7 +115,7 @@ public class MazeGamemode extends JavaPlugin {
     // -- LOADING
 
     public void reload() {
-        listenerManager.handleEvents(false);
+        listeners.handleEvents(false);
         try {
             // Unload
             modules.unload();
@@ -143,7 +142,7 @@ public class MazeGamemode extends JavaPlugin {
 
         modules.enable();
 
-        listenerManager.handleEvents(true);
+        listeners.handleEvents(true);
     }
 
     private void loadDataFiles() {
@@ -192,18 +191,16 @@ public class MazeGamemode extends JavaPlugin {
     }
 
     private void reloadPlayer(Player player) {
-        final PlayerInventory inventory = player.getInventory();
-        inventory.setContents(stacker.itemManager().reloadItems(inventory.getContents()));
+        var inv = player.getInventory();
+        var content = inv.getContents();
+        stacker.itemManager().update(content);
+        inv.setContents(content);
     }
 
     // -- GET / SET
 
     public WitheroniaCommand witheroniaCommand() {
         return witheroniaCommand;
-    }
-
-    public EventTypes eventTypes() {
-        return eventTypes;
     }
 
     public ModuleManager<MazeGamemode> modules() {
@@ -214,12 +211,12 @@ public class MazeGamemode extends JavaPlugin {
         return settings;
     }
 
-    public ListenerManager listenerManager() {
-        return listenerManager;
+    public Listeners listeners() {
+        return listeners;
     }
 
-    public Stacker stacker() {
-        return stacker;
+    public ItemManager itemManager() {
+        return stacker.itemManager();
     }
 
     public Optional<DataMap> configurationData() {
