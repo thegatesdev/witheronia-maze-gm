@@ -31,10 +31,10 @@ dependencies {
     api("com.github.stefvanschie.inventoryframework:IF:0.10.8")
     compileOnly("dev.jorel:commandapi-bukkit-core:9.0.0")
 
-    compileOnly("io.github.thegatesdev:threshold:0.3")
-    compileOnly("io.github.thegatesdev:actionable:1.2")
-    compileOnly("io.github.thegatesdev:eventador:1.4.2")
-    compileOnly("io.github.thegatesdev:stacker:0.9.2")
+    compileOnly("io.github.thegatesdev:threshold:")
+    compileOnly("io.github.thegatesdev:actionable:")
+    compileOnly("io.github.thegatesdev:eventador:")
+    compileOnly("io.github.thegatesdev:stacker:")
 }
 
 tasks {
