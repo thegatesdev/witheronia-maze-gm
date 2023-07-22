@@ -1,14 +1,26 @@
 package io.github.thegatesdev.witheronia.maze_gm.modules.item;
 
-import io.github.thegatesdev.actionable.builder.ReactorBuilder;
 import io.github.thegatesdev.stacker.item.ItemGroup;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.threshold.pluginmodule.PluginModule;
+import io.github.thegatesdev.witheronia.maze_gm.DataListeners;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
+import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class MazeItemModule extends PluginModule<MazeGamemode> {
     private final ItemGroup mazeItems = plugin.itemManager().addGroup("maze");
-    private final MazeItemListener listener = new MazeItemListener(plugin.itemManager(), plugin.listeners());
+    private final DataListeners<ItemStack, String> listeners = new DataListeners<>(plugin.listeners(), plugin.itemManager()::itemId);
+
+    {
+        listeners.data(PlayerInteractEvent.class, PlayerInteractEvent::getItem, "clicked_item");
+        listeners.data(PlayerDropItemEvent.class, e -> e.getItemDrop().getItemStack(), "dropped_item");
+        listeners.data(PlayerItemBreakEvent.class, PlayerItemBreakEvent::getBrokenItem, "broken_item");
+        listeners.data(PlayerAttemptPickupItemEvent.class, e -> e.getItem().getItemStack(), "grabbing_item");
+    }
 
     public MazeItemModule(ModuleManager<MazeGamemode> moduleManager) {
         super("items", moduleManager);
@@ -21,29 +33,30 @@ public class MazeItemModule extends PluginModule<MazeGamemode> {
 
     @Override
     protected void onDisable() {
-        listener.enabled(false);
+        listeners.enabled(false);
     }
 
     @Override
     protected void onEnable() {
-        listener.enabled(true);
+        listeners.enabled(true);
     }
 
     @Override
     protected void onUnload() {
         mazeItems.clearItems();
-        listener.clear();
+        listeners.reset();
     }
 
-
-    public void registerItem(MazeItemReader.MazeItem item) {
-        mazeItems.overwrite(item.itemKey(), item.display());
-        for (ReactorBuilder<?>.Reactor reactor : item.reactors()) listener.listen(item.itemKey(), reactor);
-    }
 
     private void onDataFileLoad(MazeGamemode.LoadDataFileInfo info) {
         info.data().ifList("maze_items", list ->
             list.eachMap(data ->
-                registerItem(MazeItemReader.read(data))));
+                registerRead(MazeItemReader.read(data))));
+    }
+
+    private void registerRead(MazeItemReader.ReadItem item) {
+        mazeItems.add(item.itemKey(), item.display());
+        for (var listener : item.listeners())
+            listeners.listen(item.itemKey(), listener.listener(), listener.dataKey());
     }
 }
