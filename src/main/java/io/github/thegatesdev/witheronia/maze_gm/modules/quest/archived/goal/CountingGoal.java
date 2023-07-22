@@ -1,8 +1,8 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.quest.goal;
+package io.github.thegatesdev.witheronia.maze_gm.modules.quest.archived.goal;
 
 import io.github.thegatesdev.eventador.core.EventType;
-import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.ActiveGoal;
-import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.Goal;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.archived.structs.ActiveGoal;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.archived.structs.Goal;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 

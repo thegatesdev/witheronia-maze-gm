@@ -1,7 +1,7 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.quest.data;
+package io.github.thegatesdev.witheronia.maze_gm.modules.quest.archived.data;
 
-import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.ActiveQuest;
-import io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs.Quest;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.archived.structs.ActiveQuest;
+import io.github.thegatesdev.witheronia.maze_gm.modules.quest.archived.structs.Quest;
 import org.bukkit.entity.Player;
 
 import java.util.*;

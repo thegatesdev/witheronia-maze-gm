@@ -1,4 +1,4 @@
-package io.github.thegatesdev.witheronia.maze_gm.modules.quest.structs;
+package io.github.thegatesdev.witheronia.maze_gm.modules.quest.archived.structs;
 
 import io.github.thegatesdev.eventador.core.EventType;
 import io.github.thegatesdev.maple.data.Keyed;
