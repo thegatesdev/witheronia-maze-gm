@@ -11,6 +11,8 @@ import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil.*;
 import static net.kyori.adventure.text.Component.join;
@@ -20,29 +22,29 @@ public final class ModuleCommand {
 
     public static LiteralArgument create(ModuleManager<?> moduleManager) {
         return (LiteralArgument) new LiteralArgument("module")
-                .then(enableDisableArg(moduleManager))
-                .then(statusArg(moduleManager));
+            .then(enableDisableArg(moduleManager))
+            .then(statusArg(moduleManager));
     }
 
     private static MultiLiteralArgument enableDisableArg(ModuleManager<?> moduleManager) {
-        return (MultiLiteralArgument) new MultiLiteralArgument("enable", "disable")
-                .then(new StringArgument("module_id")
-                        .replaceSuggestions(ArgumentSuggestions.stringCollection(i -> moduleManager.moduleKeys()))
-                        .executes((sender, args) -> {
-                            String moduleId = args.getUnchecked("module_id");
-                            var module = moduleManager.get(moduleId);
-                            if (module == null) {
-                                sender.sendMessage(text("Could not find module " + moduleId, FAIL_STYLE));
-                                return;
-                            }
-                            if (args.get("enable") != null) {
-                                module.enable();
-                                sender.sendMessage(text("Enabled module " + moduleId, SUCCEED_STYLE));
-                            } else {
-                                module.disable();
-                                sender.sendMessage(text("Disabled module " + moduleId, SUCCEED_STYLE));
-                            }
-                        }));
+        return (MultiLiteralArgument) new MultiLiteralArgument("state", List.of("enable", "disable"))
+            .then(new StringArgument("module_id")
+                .replaceSuggestions(ArgumentSuggestions.stringCollection(i -> moduleManager.moduleKeys()))
+                .executes((sender, args) -> {
+                    String moduleId = args.getUnchecked("module_id");
+                    var module = moduleManager.get(moduleId);
+                    if (module == null) {
+                        sender.sendMessage(text("Could not find module " + moduleId, FAIL_STYLE));
+                        return;
+                    }
+                    if (Objects.equals(args.getUnchecked("state"), "enable")) {
+                        module.enable();
+                        sender.sendMessage(text("Enabled module " + moduleId, SUCCEED_STYLE));
+                    } else {
+                        module.disable();
+                        sender.sendMessage(text("Disabled module " + moduleId, SUCCEED_STYLE));
+                    }
+                }));
     }
 
     private static LiteralArgument statusArg(ModuleManager<?> moduleManager) {
