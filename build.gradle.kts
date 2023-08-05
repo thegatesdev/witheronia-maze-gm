@@ -16,7 +16,7 @@ java {
 sourceSets {
     main {
         java {
-            exclude("**/generation/maze/archived/**")
+            exclude("**/archived/**")
         }
     }
 }
