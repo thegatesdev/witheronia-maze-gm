@@ -33,7 +33,6 @@ dependencies {
 
     compileOnly("io.github.thegatesdev:threshold:")
     compileOnly("io.github.thegatesdev:actionable:")
-    compileOnly("io.github.thegatesdev:eventador:")
     compileOnly("io.github.thegatesdev:stacker:")
 }
 
