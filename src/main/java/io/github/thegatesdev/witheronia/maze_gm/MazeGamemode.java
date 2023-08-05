@@ -1,17 +1,15 @@
 package io.github.thegatesdev.witheronia.maze_gm;
 
-import io.github.thegatesdev.eventador.listener.BukkitListeners;
-import io.github.thegatesdev.eventador.listener.struct.Listeners;
 import io.github.thegatesdev.maple.Maple;
 import io.github.thegatesdev.maple.data.DataElement;
 import io.github.thegatesdev.maple.data.DataMap;
-import io.github.thegatesdev.stacker.Stacker;
 import io.github.thegatesdev.stacker.item.ItemManager;
 import io.github.thegatesdev.threshold.event.PluginEvent;
+import io.github.thegatesdev.threshold.event.listening.BukkitListeners;
+import io.github.thegatesdev.threshold.event.listening.Listeners;
 import io.github.thegatesdev.threshold.pluginmodule.ModuleManager;
 import io.github.thegatesdev.witheronia.maze_gm.command.witheronia.WitheroniaCommand;
-import io.github.thegatesdev.witheronia.maze_gm.modules.item.MazeItemModule;
-import io.github.thegatesdev.witheronia.maze_gm.modules.quest.MazeQuestModule;
+import io.github.thegatesdev.witheronia.maze_gm.modules.item.ItemModule;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -52,15 +50,16 @@ public class MazeGamemode extends JavaPlugin {
     // GLOBAL
 
     private final Listeners listeners = new BukkitListeners(this);
+    private final ItemManager itemManager = new ItemManager(this);
 
     // CONNECTIONS
 
-    private final Stacker stacker = getPlugin(Stacker.class);
+    //private final Stacker stacker = getPlugin(Stacker.class);
 
     // MODULES
 
     private final ModuleManager<MazeGamemode> modules = new ModuleManager<>(this).add(
-        MazeQuestModule::new, MazeItemModule::new
+        ItemModule::new
     );
 
     // COMMANDS
@@ -193,7 +192,7 @@ public class MazeGamemode extends JavaPlugin {
     private void reloadPlayer(Player player) {
         var inv = player.getInventory();
         var content = inv.getContents();
-        stacker.itemManager().update(content);
+        itemManager.update(content);
         inv.setContents(content);
     }
 
@@ -216,7 +215,7 @@ public class MazeGamemode extends JavaPlugin {
     }
 
     public ItemManager itemManager() {
-        return stacker.itemManager();
+        return itemManager;
     }
 
     public Optional<DataMap> configurationData() {
