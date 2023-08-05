@@ -1,3 +1,4 @@
+#file: noinspection YAMLSchemaValidation
 name: $name
 prefix: WT-GM-Maze
 version: $version
@@ -9,5 +10,4 @@ depend:
   - threshold
   - stacker
   - actionable
-  - eventador
   - CommandAPI
