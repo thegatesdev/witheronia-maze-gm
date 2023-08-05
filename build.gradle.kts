@@ -29,7 +29,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
 
     api("com.github.stefvanschie.inventoryframework:IF:0.10.8")
-    compileOnly("dev.jorel:commandapi-bukkit-core:9.0.0")
+    compileOnly("dev.jorel:commandapi-bukkit-core:9.0.3")
 
     compileOnly("io.github.thegatesdev:threshold:")
     compileOnly("io.github.thegatesdev:actionable:")
