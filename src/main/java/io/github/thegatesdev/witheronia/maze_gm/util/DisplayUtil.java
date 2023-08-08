@@ -1,15 +1,11 @@
 package io.github.thegatesdev.witheronia.maze_gm.util;
 
-import io.github.thegatesdev.maple.read.ReadableOptions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DisplayUtil {
     public static final Style BLOCK_BORDER_STYLE = Style.style().color(NamedTextColor.GREEN).build();
@@ -26,21 +22,6 @@ public class DisplayUtil {
             body.applyFallbackStyle(TEXT_STYLE),
             Component.text("-------", BLOCK_BORDER_STYLE)
         );
-    }
-
-    public static Component displayReadableOptions(ReadableOptions readableOptions) {
-        final var entries = readableOptions.entries();
-        final List<Component> out = new ArrayList<>(entries.size());
-        for (var entry : entries) {
-            final String dataTypeId = entry.key();
-            out.add(Component.text()
-                .append(Component.text(entry.key() + ": ", VAR_STYLE))
-                .append(dataTypeId == null ? fail("unknown") : Component.text(dataTypeId + " ", VAR_VAL_STYLE))
-                .append(entry.hasDefault() ? entry.defaultValue() == null ? Component.text("optional", EMPHASIS_STYLE) : Component.text("default: " + entry.defaultValue(), EMPHASIS_STYLE) : Component.text("required", EMPHASIS_STYLE))
-                .build()
-            );
-        }
-        return Component.join(JoinConfiguration.newlines(), out);
     }
 
     public static Component fail(String text) {
