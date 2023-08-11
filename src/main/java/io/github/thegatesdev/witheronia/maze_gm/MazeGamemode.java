@@ -73,7 +73,9 @@ public class MazeGamemode extends JavaPlugin {
 
         config.reloadMainConfig();
 
-        var context = new ReloadContext(new DataEvent<>());
+        var context = new ReloadContext(
+            new DataEvent<>(throwable -> logger.warning("Error while loading content file: " + throwable.getMessage()))
+        );
 
         reloadModules(context);
         passContentFiles(context);
