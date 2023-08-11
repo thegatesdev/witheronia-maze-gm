@@ -88,8 +88,6 @@ public class MazeGamemode extends JavaPlugin {
                 logger.warning("Error while reloading module " + module.name() + ": " + e.getMessage());
             }
         }
-
-        passContentFiles(context);
     }
 
     // -- CONTENT FILES
