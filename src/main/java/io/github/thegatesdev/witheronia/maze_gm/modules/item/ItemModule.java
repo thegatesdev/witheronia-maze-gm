@@ -9,7 +9,6 @@ import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.stacker.item.ItemGroup;
 import io.github.thegatesdev.stacker.item.ItemManager;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
-import io.github.thegatesdev.witheronia.maze_gm.command.Command;
 import io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil;
 import org.bukkit.entity.Player;
 
@@ -19,13 +18,17 @@ public class ItemModule implements MazeGamemode.PluginModule {
 
     private final ItemGroup itemGroup;
 
-    public ItemModule(ItemManager itemManager, Command command) {
+    public ItemModule(ItemManager itemManager) {
         itemGroup = itemManager.addGroup("maze_items");
-        command.then(command(itemManager));
     }
 
     @Override
-    public void reload(MazeGamemode.ReloadContext context) {
+    public void start(MazeGamemode gamemode) {
+        gamemode.command().then(command(gamemode.itemManager()));
+    }
+
+    @Override
+    public void reload(MazeGamemode gamemode, MazeGamemode.ReloadContext context) {
         context.onContentFileLoad().bind(this::onContentFileLoad);
     }
 

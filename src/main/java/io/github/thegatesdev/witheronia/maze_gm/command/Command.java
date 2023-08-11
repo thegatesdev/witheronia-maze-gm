@@ -13,7 +13,12 @@ public class Command extends CommandTree {
         super("scourge");
         this.gamemode = gamemode;
         withAliases("sc");
+    }
+
+    @Override
+    public void register() {
         addDefaults();
+        super.register();
     }
 
     private void addDefaults() {

@@ -36,7 +36,7 @@ public class MazeGamemode extends JavaPlugin {
     // MODULES
 
     private final List<PluginModule> modules = List.of(
-        new ItemModule(itemManager, command)
+        new ItemModule(itemManager)
     );
 
     // -- PLUGIN
@@ -61,7 +61,7 @@ public class MazeGamemode extends JavaPlugin {
 
         for (var module : modules) {
             try {
-                module.start();
+                module.start(this);
             } catch (Exception e) {
                 logger.warning("Error while starting module " + module.name() + ": " + e.getMessage());
             }
@@ -83,7 +83,7 @@ public class MazeGamemode extends JavaPlugin {
         // Reload modules
         for (var module : modules) {
             try {
-                module.reload(context);
+                module.reload(this, context);
             } catch (Exception e) {
                 logger.warning("Error while reloading module " + module.name() + ": " + e.getMessage());
             }
@@ -145,6 +145,10 @@ public class MazeGamemode extends JavaPlugin {
         return config;
     }
 
+    public Command command() {
+        return command;
+    }
+
     // -- DEFINITIONS
 
     public record ReloadContext(DataEvent<DataMap> onContentFileLoad) {
@@ -153,10 +157,10 @@ public class MazeGamemode extends JavaPlugin {
     public interface PluginModule {
         String name();
 
-        default void start() {
+        default void start(MazeGamemode gamemode) {
         }
 
-        default void reload(ReloadContext context) {
+        default void reload(MazeGamemode gamemode, ReloadContext context) {
         }
     }
 }
