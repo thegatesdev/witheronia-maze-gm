@@ -43,8 +43,8 @@ public class MazeGamemode extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        command.register();
         start();
+        command.register();
     }
 
     @Override
