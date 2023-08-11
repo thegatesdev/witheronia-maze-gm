@@ -35,7 +35,7 @@ public class ItemModule implements MazeGamemode.PluginModule {
     // --
 
     private void onContentFileLoad(DataMap data) {
-        data.ifList("maze_items", list -> list.eachMap(itemMap -> {
+        data.ifList("scourge_items", list -> list.eachMap(itemMap -> {
             var item = ItemBuilder.build(itemMap);
             itemGroup.overwrite(item.key(), item.settings());
         }));
