@@ -43,7 +43,7 @@ public class MazeGamemode extends JavaPlugin {
     // MODULES
 
     private final List<PluginModule> modules = List.of(
-        new ItemModule(itemManager)
+        new ItemModule()
     );
 
     // -- PLUGIN

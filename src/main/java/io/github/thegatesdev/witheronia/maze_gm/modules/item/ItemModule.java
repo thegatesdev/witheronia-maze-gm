@@ -16,14 +16,11 @@ import java.util.Collections;
 
 public class ItemModule implements MazeGamemode.PluginModule {
 
-    private final ItemGroup itemGroup;
-
-    public ItemModule(ItemManager itemManager) {
-        itemGroup = itemManager.addGroup("maze_items");
-    }
+    private ItemGroup itemGroup;
 
     @Override
     public void start(MazeGamemode gamemode) {
+        itemGroup = gamemode.itemManager().addGroup("maze_items");
         gamemode.command().then(command(gamemode.itemManager()));
     }
 
@@ -64,10 +61,10 @@ public class ItemModule implements MazeGamemode.PluginModule {
                             if (group == null)
                                 throw CommandAPIBukkit.failWithAdventureComponent(DisplayUtil.fail("Item group does not exist: " + groupId));
                             String itemId = args.getUnchecked("item_id");
-                            var item = group.getItem(itemId);
+                            var item = itemManager.buildItem(group, itemId);
                             if (item == null)
                                 throw CommandAPIBukkit.failWithAdventureComponent(DisplayUtil.fail("Item does not exist in this group: " + itemId));
-                            args.<Player>getOptionalUnchecked("player").ifPresent(player -> player.getInventory().addItem(item.build()));
+                            args.<Player>getOptionalUnchecked("player").ifPresent(player -> player.getInventory().addItem(item));
                         })
                     )));
     }
