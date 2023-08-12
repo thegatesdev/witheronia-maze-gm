@@ -55,7 +55,7 @@ public class ItemModule implements MazeGamemode.PluginModule {
                     .replaceSuggestions(ArgumentSuggestions.stringCollection(info -> itemManager.groupIds()))
                     .then(new StringArgument("item_id")
                         .replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
-                            var group = itemManager.getGroup("group_id");
+                            var group = itemManager.getGroup(info.previousArgs().getUnchecked("group_id"));
                             return group != null ? group.itemIds() : Collections.emptyList();
                         }))
                         .executes((sender, args) -> {
