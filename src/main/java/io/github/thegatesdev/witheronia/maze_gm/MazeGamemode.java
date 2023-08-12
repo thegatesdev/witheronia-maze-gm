@@ -4,8 +4,13 @@ import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.data.DataValue;
 import io.github.thegatesdev.stacker.item.ItemManager;
 import io.github.thegatesdev.threshold.event.DataEvent;
+import io.github.thegatesdev.threshold.event.listening.BukkitListeners;
+import io.github.thegatesdev.threshold.event.listening.Listeners;
 import io.github.thegatesdev.witheronia.maze_gm.command.Command;
 import io.github.thegatesdev.witheronia.maze_gm.modules.item.ItemModule;
+import org.bukkit.Server;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -20,6 +25,7 @@ public class MazeGamemode extends JavaPlugin {
     // PLUGIN
 
     private final Logger logger = getLogger();
+    private final Server server = getServer();
 
     // DATA
 
@@ -28,6 +34,7 @@ public class MazeGamemode extends JavaPlugin {
     // GLOBAL
 
     private final ItemManager itemManager = new ItemManager(this);
+    private final Listeners listeners = new BukkitListeners(this);
 
     // COMMAND
 
@@ -43,6 +50,8 @@ public class MazeGamemode extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        listeners.listen(PlayerJoinEvent.class, event -> reloadPlayer(event.getPlayer()));
+
         start();
         command.register();
     }
@@ -79,6 +88,14 @@ public class MazeGamemode extends JavaPlugin {
 
         reloadModules(context);
         passContentFiles(context);
+
+        server.getOnlinePlayers().forEach(this::reloadPlayer);
+    }
+
+    private void reloadPlayer(Player player) {
+        var contents = player.getInventory().getContents();
+        itemManager.update(contents);
+        player.getInventory().setContents(contents);
     }
 
     private void reloadModules(ReloadContext context) {
