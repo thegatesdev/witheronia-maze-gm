@@ -21,6 +21,7 @@ public class ItemModule implements MazeGamemode.PluginModule {
     @Override
     public void start(MazeGamemode gamemode) {
         itemGroup = gamemode.itemManager().addGroup("maze_items");
+
         gamemode.command().then(command(gamemode.itemManager()));
     }
 
@@ -70,6 +71,10 @@ public class ItemModule implements MazeGamemode.PluginModule {
     }
 
     // -- GET / SET
+
+    public ItemGroup items() {
+        return itemGroup;
+    }
 
     @Override
     public String name() {
