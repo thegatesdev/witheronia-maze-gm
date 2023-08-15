@@ -137,14 +137,14 @@ public class MazeGamemode extends JavaPlugin {
     }
 
     private void passContentFilesAt(ReloadContext context, Set<Path> skipPaths, Path inputPath) {
-        try (var str = Config.contentFilesForPath(inputPath)) {
-            str.forEach(path -> {
+        try (var pathStream = Config.contentFilesForPath(inputPath)) {
+            pathStream.forEach(path -> {
                 if (!skipPaths.add(path)) return;
                 try {
                     config.loadPath(path).ifMap(context.onContentFileLoad::dispatch,
                         () -> logger.warning("Content file should be a map: " + path));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    logger.warning("Failed to load content file " + path);
                 }
             });
         } catch (IOException e) {
