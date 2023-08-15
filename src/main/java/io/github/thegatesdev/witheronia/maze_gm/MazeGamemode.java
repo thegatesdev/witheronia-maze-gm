@@ -158,6 +158,10 @@ public class MazeGamemode extends JavaPlugin {
         return itemManager;
     }
 
+    public Listeners listeners() {
+        return listeners;
+    }
+
     public Config config() {
         return config;
     }
