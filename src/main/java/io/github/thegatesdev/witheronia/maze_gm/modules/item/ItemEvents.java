@@ -34,8 +34,12 @@ public class ItemEvents {
         return itemEvent;
     }
 
-    public <Event> void listen(String itemKey, ClassListener<Event> listener) {
+    public <Event> void setListener(String itemKey, ClassListener<Event> listener) {
         get(listener.eventType()).setListener(itemKey, listener);
+    }
+
+    public <Event> void clearListeners(String itemKey) {
+        entries.values().forEach(itemEvent -> itemEvent.clearListener(itemKey));
     }
 
     public boolean has(Class<?> eventClass) {

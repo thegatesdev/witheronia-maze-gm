@@ -56,7 +56,9 @@ public class ItemModule implements MazeGamemode.PluginModule {
         });
 
         itemGroup.overwrite(itemKey, settings);
-        reactors.forEach(reactor -> itemEvents.listen(itemKey, reactor));
+
+        itemEvents.clearListeners(itemKey);
+        reactors.forEach(reactor -> itemEvents.setListener(itemKey, reactor));
     }
 
     private ItemSettings buildItemSettings(DataMap data) throws ElementException {
