@@ -50,7 +50,7 @@ public class ItemModule implements MazeGamemode.PluginModule {
         var itemKey = itemMap.getString("key");
         var settings = buildItemSettings(itemMap);
         var reactors = itemMap.getList("reactors", new DataList()).map(element -> {
-            var reactor = Registries.REACTORS.build(element.requireOf(DataMap.class));
+            var reactor = Registries.REACTORS.build(element);
             if (!itemEvents.has(reactor.eventType())) throw new ElementException(element, "This event is not an item event: " + reactor.eventType().getSimpleName());
             return reactor;
         });
