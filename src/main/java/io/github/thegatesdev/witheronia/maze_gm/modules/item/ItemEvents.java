@@ -4,6 +4,7 @@ import io.github.thegatesdev.stacker.item.ItemManager;
 import io.github.thegatesdev.threshold.event.listening.ClassListener;
 import io.github.thegatesdev.threshold.event.listening.Listeners;
 import io.github.thegatesdev.threshold.event.listening.StaticListener;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -14,6 +15,14 @@ public class ItemEvents {
     private final Listeners listeners;
     private final ItemManager itemManager;
     private final Map<Class<?>, ItemEvent<?>> entries = new HashMap<>();
+
+    public final ItemEvent<PlayerInteractEvent> CLICK = define(PlayerInteractEvent.class, PlayerInteractEvent::getItem);
+    public final ItemEvent<PlayerInteractEntityEvent> ENTITY_CLICK = define(PlayerInteractEntityEvent.class, e -> e.getPlayer().getInventory().getItem(e.getHand()));
+    public final ItemEvent<PlayerItemBreakEvent> ITEM_BREAK = define(PlayerItemBreakEvent.class, PlayerItemBreakEvent::getBrokenItem);
+    public final ItemEvent<PlayerItemConsumeEvent> ITEM_CONSUME = define(PlayerItemConsumeEvent.class, PlayerItemConsumeEvent::getItem);
+    public final ItemEvent<PlayerDropItemEvent> ITEM_DROP = define(PlayerDropItemEvent.class, e -> e.getItemDrop().getItemStack());
+    public final ItemEvent<PlayerAttemptPickupItemEvent> ITEM_TRY_GRAB = define(PlayerAttemptPickupItemEvent.class, e -> e.getItem().getItemStack());
+
 
     public ItemEvents(Listeners listeners, ItemManager itemManager) {
         this.listeners = listeners;
