@@ -5,22 +5,32 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import io.github.thegatesdev.actionable.registry.Registries;
+import io.github.thegatesdev.maple.data.DataList;
 import io.github.thegatesdev.maple.data.DataMap;
+import io.github.thegatesdev.maple.exception.ElementException;
 import io.github.thegatesdev.stacker.item.ItemGroup;
 import io.github.thegatesdev.stacker.item.ItemManager;
+import io.github.thegatesdev.stacker.item.ItemSettings;
+import io.github.thegatesdev.threshold.Threshold;
 import io.github.thegatesdev.witheronia.maze_gm.MazeGamemode;
 import io.github.thegatesdev.witheronia.maze_gm.util.DisplayUtil;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 
 import java.util.Collections;
 
 public class ItemModule implements MazeGamemode.PluginModule {
 
     private ItemGroup itemGroup;
+    private ItemEvents itemEvents;
 
     @Override
     public void start(MazeGamemode gamemode) {
         itemGroup = gamemode.itemManager().addGroup("maze_items");
+        itemEvents = new ItemEvents(gamemode.listeners(), gamemode.itemManager());
 
         gamemode.command().then(command(gamemode.itemManager()));
     }
@@ -33,10 +43,33 @@ public class ItemModule implements MazeGamemode.PluginModule {
     // --
 
     private void onContentFileLoad(DataMap data) {
-        data.ifList("scourge_items", list -> list.eachMap(itemMap -> {
-            var item = ItemBuilder.build(itemMap);
-            itemGroup.overwrite(item.key(), item.settings());
-        }));
+        data.ifList("scourge_items", list -> list.eachMap(this::loadItem));
+    }
+
+    private void loadItem(DataMap itemMap) {
+        var itemKey = itemMap.getString("key");
+        var settings = buildItemSettings(itemMap);
+        var reactors = itemMap.getList("reactors", new DataList()).map(element -> {
+            var reactor = Registries.REACTORS.build(element.requireOf(DataMap.class));
+            if (!itemEvents.has(reactor.eventType())) throw new ElementException(element, "This event is not an item event: " + reactor.eventType().getSimpleName());
+            return reactor;
+        });
+
+        itemGroup.overwrite(itemKey, settings);
+        reactors.forEach(reactor -> itemEvents.listen(itemKey, reactor));
+    }
+
+    private ItemSettings buildItemSettings(DataMap data) throws ElementException {
+        var builder = new ItemSettings(Threshold.enumGetThrow(Material.class, data.getString("material")));
+
+        data.ifValue("name", value ->
+            builder.name(MiniMessage.miniMessage().deserialize(value.stringValue())));
+        data.ifList("lore", list ->
+            builder.lore(list.mapValues(value -> MiniMessage.miniMessage().deserialize(value.stringValue()))));
+        data.ifList("flags", list ->
+            builder.flag(list.mapValues(value -> Threshold.enumGetThrow(ItemFlag.class, value.stringValue()))));
+
+        return builder;
     }
 
     // --
