@@ -122,7 +122,7 @@ public class MazeGamemode extends JavaPlugin {
         long start = System.currentTimeMillis();
 
         // Get a list of strings that are the inputted content paths
-        var inputList = list.valueList(DataValue::stringValue);
+        var inputList = list.mapValues(DataValue::stringValue);
         // Keep track of what paths we already visited, so we don't do that twice.
         var pathCache = new HashSet<Path>();
         for (var input : inputList) {
