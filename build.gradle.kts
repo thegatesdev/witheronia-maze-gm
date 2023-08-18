@@ -2,6 +2,7 @@ plugins {
     `java-library`
     java
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.papermc.paperweight.userdev") version "1.5.5"
 }
 
 group = "io.github.thegatesdev"
@@ -26,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
 
     api("com.github.stefvanschie.inventoryframework:IF:0.10.8")
     compileOnly("dev.jorel:commandapi-bukkit-core:9.0.3")
@@ -37,6 +38,10 @@ dependencies {
 }
 
 tasks {
+    assemble {
+        dependsOn(reobfJar)
+    }
+
     processResources {
         filteringCharset = Charsets.UTF_8.name()
         val props = mapOf(
@@ -64,7 +69,7 @@ tasks {
     }
 
     register<Copy>("pluginJar") {
-        from(shadowJar)
+        from(reobfJar)
         into(buildDir.resolve("pluginJar"))
         rename { "${project.name}.jar" }
     }
