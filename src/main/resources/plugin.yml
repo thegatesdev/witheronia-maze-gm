@@ -1,6 +1,6 @@
 #file: noinspection YAMLSchemaValidation
 name: $name
-prefix: WT-GM-Maze
+prefix: TheScourge
 version: $version
 author: TheGatesDev
 api-version: $apiVersion
