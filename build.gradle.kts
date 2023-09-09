@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.thegatesdev"
-version = "0.3"
+version = "0.4.0"
 description = "The official Witheronia Maze gamemode plugin"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
