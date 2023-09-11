@@ -5,7 +5,7 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import io.github.thegatesdev.actionable.registry.Registries;
+import io.github.thegatesdev.actionable.registry.Builders;
 import io.github.thegatesdev.maple.data.DataList;
 import io.github.thegatesdev.maple.data.DataMap;
 import io.github.thegatesdev.maple.exception.ElementException;
@@ -50,8 +50,9 @@ public class ItemModule implements MazeGamemode.PluginModule {
         var itemKey = itemMap.getString("key");
         var settings = buildItemSettings(itemMap);
         var reactors = itemMap.getList("reactors", new DataList()).map(element -> {
-            var reactor = Registries.REACTORS.build(element);
-            if (!itemEvents.has(reactor.eventType())) throw new ElementException(element, "This event is not an item event: " + reactor.eventType().getSimpleName());
+            var reactor = Builders.REACTORS.build(element);
+            if (!itemEvents.has(reactor.eventType()))
+                throw new ElementException(element, "This event is not an item event: " + reactor.eventType().getSimpleName());
             return reactor;
         });
 
